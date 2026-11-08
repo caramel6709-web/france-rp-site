@@ -115,13 +115,13 @@
     auth.onAuthStateChanged(async u => {
       if (!u) { me = null; const go = () => showLogin(); document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", go) : go(); return; }
       me = u; hideGate();
-      try {
+      try { await timeout((async () => {
         const acc = await fs.doc("comptes/" + u.uid).get();
         const name = u.displayName || (acc.exists && acc.data().name) || "Membre";
         if (!acc.exists || acc.data().name !== name) await fs.doc("comptes/" + u.uid).set({ name, at: Date.now() });
         ownerUid = await claimOwner(u.uid);
         if (ownerUid === u.uid) await seed();
-      } catch (e) { console.warn("La Piaule:", e); }
+      })(), 12000); } catch (e) { dbError(e, "démarrage"); }
       res(u);
     });
   });
@@ -160,6 +160,24 @@
     await b.commit();
   }
 
+  /* Affiche clairement les erreurs de base de données (règles, réseau…) */
+  let shown = {};
+  function dbError(e, where) {
+    const code = (e && e.code) || "inconnue";
+    console.warn("La Piaule Firestore", where, e);
+    if (shown[code]) return; shown[code] = 1;
+    const msg = code === "permission-denied" ? "Accès refusé par la base de données. Vérifie que les règles Firestore (fichier firestore.rules) sont bien publiées."
+      : code === "unavailable" ? "Impossible de joindre la base de données. Vérifie ta connexion, ou ouvre l'app dans Safari."
+      : code === "failed-precondition" ? "La base Firestore n'est pas encore créée, ou il manque un index."
+      : "Erreur de base de données (" + code + ").";
+    const b = document.createElement("div");
+    b.style.cssText = "position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:300;background:#ff4d6a;color:#fff;padding:12px 14px;border-radius:14px;font:600 14px system-ui,sans-serif;box-shadow:0 8px 24px #0006";
+    b.textContent = "⚠️ " + msg + " [" + code + "]";
+    b.onclick = () => b.remove();
+    (document.body || document.documentElement).appendChild(b);
+  }
+  const timeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej({ code: "unavailable" }), ms))]);
+
   /* ---------- db : même forme que l'API de la page ---------- */
   const wrapSnap = s => ({ id: s.id, exists: s.exists, data: () => s.data(), metadata: { fromCache: false, hasPendingWrites: false } });
   function wrapQuery(ref, st) {
@@ -177,8 +195,8 @@
       /* Trier côté téléphone quand il y a aussi un filtre : pas besoin de créer d'index Firestore. */
       orderBy: (f, d) => st.wheres.length ? wrapQuery(ref, { ...st, order: [f, d || "asc"] }) : wrapQuery(ref.orderBy(f, d || "asc"), st),
       limit: n => st.order ? wrapQuery(ref, { ...st, lim: n }) : wrapQuery(ref.limit(n), st),
-      get: () => ref.get().then(post),
-      onSnapshot: (next, err) => ref.onSnapshot(s => next(post(s)), e => err && err({ code: e.code || "unavailable", message: e.message })),
+      get: () => ref.get().then(post).catch(e => { dbError(e, ref.path); throw e; }),
+      onSnapshot: (next, err) => ref.onSnapshot(s => next(post(s)), e => { dbError(e, ref.path); err && err({ code: e.code || "unavailable", message: e.message }); }),
       doc: id => wrapDoc(ref.doc(id)),
       add: data => ref.add(data).then(r => wrapDoc(r))
     };
