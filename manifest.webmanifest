@@ -1,0 +1,17 @@
+{
+  "name": "La Piaule",
+  "short_name": "La Piaule",
+  "description": "Discute avec tes potes dans des groupes et des salons. Gratuit.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0e15",
+  "theme_color": "#16151e",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
