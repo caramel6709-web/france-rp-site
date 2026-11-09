@@ -13,6 +13,13 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);box-sizing:border-box;height:100%}body{margin:0;font:14px system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>html{height:var(--app-h,100%)!important}body{height:100%!important}</style>
+<script>
+/* iOS (app sur l'écran d'accueil) donne une hauteur trop petite : on prend la vraie hauteur de l'écran,
+   sauf quand le clavier est ouvert. */
+(function(){function fix(){var h=innerHeight;if(navigator.standalone){var s=matchMedia("(orientation: portrait)").matches?screen.height:screen.width;if(s>h&&s-h<140)h=s;}document.documentElement.style.setProperty("--app-h",h+"px");}
+fix();addEventListener("resize",fix);addEventListener("orientationchange",function(){setTimeout(fix,350);});if(window.visualViewport)visualViewport.addEventListener("resize",fix);})();
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
