@@ -43,7 +43,7 @@ const commands = [
 client.once('ready', async () => {
   const guild = await client.guilds.fetch(GUILD_ID);
   await guild.commands.set(commands);
-  client.user.setActivity('『🌙』Le QG');
+  client.user.setActivity('『🌴』Sunset Club');
   console.log(`✅ ${client.user.tag} est en ligne`);
 });
 

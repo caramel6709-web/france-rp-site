@@ -1,5 +1,5 @@
 // Structure du serveur — style 『emoji』・nom. Modifie librement.
-export const SERVER_NAME = '『🌙』Le QG';
+export const SERVER_NAME = '『🌴』Sunset Club';
 
 // self: rôle que les membres peuvent prendre eux-mêmes avec /role
 export const ROLES = [

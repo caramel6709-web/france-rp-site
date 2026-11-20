@@ -1,4 +1,4 @@
-# 🌙 Le QG — bot Soleria
+# 🌴 Sunset Club — bot Soleria
 
 Configure automatiquement un serveur Discord chill + GTA et le modère.
 

@@ -108,7 +108,9 @@ for (const rule of [
 const all = await api('GET', `${G}/roles`);
 const me = await api('GET', '/users/@me');
 const botRole = all.find((x) => x.tags?.bot_id === me.id);
-if (botRole) await api('PATCH', `${G}/roles`, [{ id: botRole.id, position: Math.max(...all.map((x) => x.position)) }]);
+// Ordre : bot tout en haut, puis les rôles dans l'ordre de config.js (Fondateur en premier)
+const order = [...(botRole ? [botRole.id] : []), ...ROLES.map((x) => roles[x.key].id)];
+await api('PATCH', `${G}/roles`, order.map((id, i) => ({ id, position: order.length - i })));
 await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles.owner.id}`);
 await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles.member.id}`);
 console.log('\n✅ Serveur configuré !');
