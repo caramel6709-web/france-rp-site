@@ -22,12 +22,19 @@ async function api(method, path, body) {
 const bits = (...names) => names.reduce((a, n) => a | P[n], 0n).toString();
 const G = `/guilds/${GUILD_ID}`;
 
+// --reset : efface TOUS les salons, rôles et règles AutoMod avant de reconstruire
+const RESET = process.argv.includes('--reset');
 const existing = await api('GET', `${G}/channels`);
-if (existing.length > 6) throw new Error(`Le serveur a déjà ${existing.length} salons : ce script est fait pour un serveur neuf.`);
+if (existing.length > 6 && !RESET) throw new Error(`Le serveur a déjà ${existing.length} salons. Relance avec --reset pour tout effacer et reconstruire.`);
 const guild = await api('GET', G);
 console.log(`Configuration de ${guild.name}…`);
-await api('PATCH', G, { name: SERVER_NAME });
+await api('PATCH', G, { name: SERVER_NAME, afk_channel_id: null, system_channel_id: null });
 for (const c of existing) await api('DELETE', `/channels/${c.id}`);
+if (RESET) {
+  for (const r of await api('GET', `${G}/roles`)) if (!r.managed && r.id !== GUILD_ID) await api('DELETE', `${G}/roles/${r.id}`);
+  for (const r of await api('GET', `${G}/auto-moderation/rules`)) await api('DELETE', `${G}/auto-moderation/rules/${r.id}`);
+  console.log('  ancien contenu effacé');
+}
 
 // Rôles : créés du bas vers le haut de la liste
 const roles = {};
@@ -50,15 +57,16 @@ const overwrites = (access) => ({
 const channels = {};
 for (const cat of CATEGORIES) {
   const category = await api('POST', `${G}/channels`, { name: cat.name, type: 4, permission_overwrites: overwrites(cat.access) });
-  for (const ch of cat.channels) {
+  for (const [idx, ch] of cat.channels.entries()) {
     const voice = ch.type === 'voice';
+    const branch = idx === 0 ? '╭' : idx === cat.channels.length - 1 ? '╰' : '│';
     const c = await api('POST', `${G}/channels`, {
-      name: ch.name, type: voice ? 2 : 0, parent_id: category.id,
+      name: branch + ch.name, ...(ch.topic && { topic: ch.topic }), type: voice ? 2 : 0, parent_id: category.id,
       permission_overwrites: ch.access ? [...overwrites(cat.access), ...overwrites(ch.access)] : overwrites(cat.access),
       ...(voice ? {} : { rate_limit_per_user: cat.access || ch.access ? 0 : 2 }),
     });
     if (ch.key) channels[ch.key] = c;
-    console.log(`  salon ${ch.name}`);
+    console.log(`  salon ${branch}${ch.name}`);
   }
 }
 await api('PATCH', G, { afk_channel_id: channels.afk.id, afk_timeout: 900, system_channel_id: channels.general.id })
@@ -76,7 +84,7 @@ await send(channels.roles, { title: '『🎭』・Les rôles', color: 0x5865f2, 
   `**『🛡️』・Staff**\n${r('owner')} ・ ${r('cofond')} ・ ${r('admin')} ・ ${r('modo')} ・ ${r('helper')}\n\n` +
   `**『⭐』・Communauté**\n${r('team')} — membres de la team (accès à l'espace Team)\n${r('vip')} — amis proches et boosters\n` +
   `${r('actif')} — les plus actifs du serveur\n${r('member')} — tout le monde\n\n` +
-  `**『🎮』・À prendre toi-même** (commande \`/role\` dans ${ch('commandes' in channels ? 'commandes' : 'general')})\n` +
+  `**『🎮』・À prendre toi-même** (commande \`/role\` dans ${ch('general')})\n` +
   `${r('gta6')} ・ ${r('gtav')} ・ ${r('gamer')} ・ ${r('notif')} ・ ${r('event')}` });
 await send(channels.annonces, { title: '『🎉』・Ouverture !', description: `${SERVER_NAME} est ouvert. Invite tes potes ! 🌙`, color: 0x2ecc71 });
 

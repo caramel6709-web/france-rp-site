@@ -20,38 +20,72 @@ export const ROLES = [
   { key: 'event',   name: '🎉・Notif Events',    color: 0x99aab5, hoist: false, perms: [], self: true },
 ];
 
-// access : 'readonly' (lecture seule), 'team' (Team + staff), 'staff', 'locked' (vocal : seuls Team/staff rejoignent)
+// access : 'readonly' (lecture seule), 'team' (Team + staff), 'staff', 'locked' (vocal : seuls Team/VIP/staff rejoignent)
+// Les traits ╭ │ ╰ sont ajoutés automatiquement devant chaque salon.
 export const CATEGORIES = [
   { name: '『📌』・INFORMATIONS', channels: [
-    { key: 'welcome',  name: '『👋』・bienvenue', access: 'readonly' },
-    { key: 'rules',    name: '『📜』・règlement', access: 'readonly' },
-    { key: 'annonces', name: '『📢』・annonces',  access: 'readonly' },
-    { key: 'roles',    name: '『🎭』・rôles',     access: 'readonly' },
+    { key: 'welcome',  name: '『👋』bienvenue', access: 'readonly' },
+    { key: 'rules',    name: '『📜』règlement', access: 'readonly' },
+    { key: 'annonces', name: '『📢』annonces',  access: 'readonly' },
+    { key: 'roles',    name: '『🎭』rôles',     access: 'readonly' },
+    { name: '『🎁』giveaways', access: 'readonly' },
+    { name: '『🚀』boosts',    access: 'readonly' },
+    { name: '『🔗』réseaux',   access: 'readonly' },
   ]},
-  { name: '『🌍』・ESPACE COMMUNAUTÉ', channels: [
-    { key: 'general', name: '『💬』・discussion' },
-    { name: '『📸』・médias' },
-    { name: '『💡』・suggestions' },
-    { name: '『🤖』・commandes' },
+  { name: '『🌍』・COMMUNAUTÉ', channels: [
+    { key: 'general', name: '『💬』discussion' },
+    { name: '『📸』médias' },
+    { name: '『😂』memes' },
+    { name: '『🎵』musique' },
+    { name: '『🐾』animaux' },
+    { name: '『🍔』food' },
+    { name: '『🤖』commandes' },
   ]},
-  { name: '『🌴』・ESPACE GTA 6', channels: [
-    { name: '『📰』・gta6-news', access: 'readonly' },
-    { name: '『🎮』・gta-discussion' },
-    { name: '『🤝』・cherche-équipe' },
+  { name: '『🎉』・FUN', channels: [
+    { name: '『🔢』compteur', topic: 'Comptez de 1 en 1, chacun son tour. Celui qui se trompe recommence à 1 !' },
+    { name: '『🔤』mot-suivant', topic: 'Écris un mot qui commence par la dernière lettre du mot précédent.' },
+    { name: '『🏆』best-of', topic: 'Les meilleurs moments et phrases cultes du serveur.' },
+    { name: '『🖥️』ton-setup', topic: 'Montre ton setup gaming !' },
+    { name: '『📊』sondages', access: 'readonly' },
+  ]},
+  { name: '『🌴』・GTA 6', channels: [
+    { name: '『📰』gta6-news', access: 'readonly' },
+    { name: '『🎬』trailers-leaks' },
+    { name: '『🗺️』théories-map' },
+    { name: '『💬』gta-discussion' },
+    { name: '『📷』screens-clips' },
+    { name: '『🤝』cherche-crew' },
+  ]},
+  { name: '『🎮』・GAMING', channels: [
+    { name: '『🕹️』jeux-du-moment' },
+    { name: '『🎥』clips' },
+    { name: '『🔍』cherche-joueurs' },
+    { name: '『🏅』exploits', topic: 'Tes plus gros exploits, records et trophées.' },
+  ]},
+  { name: '『🎫』・SUPPORT', channels: [
+    { name: '『❓』question' },
+    { name: '『🚨』signalements' },
+    { name: '『💡』suggestions' },
   ]},
   { name: '『⭐』・ESPACE TEAM', access: 'team', channels: [
-    { name: '『⭐』・team-chat' },
-    { name: '『📅』・planning' },
+    { name: '『⭐』team-chat' },
+    { name: '『📅』planning' },
+    { name: '『💭』idées' },
+    { name: '『⭐』Team', type: 'voice' },
   ]},
   { name: '『🔊』・VOCAUX', channels: [
     { name: '『🔊』Général 1', type: 'voice' },
-    { name: '『🎮』GTA 6', type: 'voice' },
+    { name: '『🔊』Général 2', type: 'voice' },
+    { name: '『🌴』GTA 6', type: 'voice' },
+    { name: '『🎮』Gaming', type: 'voice' },
+    { name: '『🎵』Musique', type: 'voice' },
     { name: '『🔒』Privé', type: 'voice', access: 'locked' },
     { key: 'afk', name: '『💤』AFK', type: 'voice' },
   ]},
-  { name: '『🛡️』・ESPACE STAFF', access: 'staff', channels: [
-    { name: '『🛡️』・staff-chat' },
-    { key: 'logs', name: '『📋』・logs' },
+  { name: '『🛡️』・STAFF', access: 'staff', channels: [
+    { name: '『🛡️』staff-chat' },
+    { key: 'logs', name: '『📋』logs' },
+    { name: '『⚖️』sanctions' },
     { name: '『🔒』Staff', type: 'voice' },
   ]},
 ];
