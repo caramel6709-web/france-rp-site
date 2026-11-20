@@ -4,12 +4,14 @@ import 'dotenv/config';
 import {
   Client, GatewayIntentBits, EmbedBuilder, SlashCommandBuilder, PermissionFlagsBits as P, MessageFlags,
 } from 'discord.js';
+import { ROLES } from './config.js';
 
 const { DISCORD_TOKEN, GUILD_ID } = process.env;
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 const findChannel = (guild, part) => guild.channels.cache.find((c) => c.isTextBased() && c.name.includes(part));
-const findRole = (guild, part) => guild.roles.cache.find((r) => r.name.includes(part));
+const findRole = (guild, name) => guild.roles.cache.find((r) => r.name === name);
+const SELF_ROLES = ROLES.filter((r) => r.self);
 const warns = new Map(); // avertissements en mémoire (remis à zéro au redémarrage)
 
 const commands = [
@@ -34,18 +36,19 @@ const commands = [
     .addStringOption((o) => o.setName('raison').setDescription('Raison'))
     .setDefaultMemberPermissions(P.BanMembers),
   new SlashCommandBuilder().setName('role').setDescription('Prendre ou retirer un rôle')
-    .addStringOption((o) => o.setName('nom').setDescription('Rôle').setRequired(true).addChoices({ name: '🚗 Joueur GTA', value: 'gta' })),
+    .addStringOption((o) => o.setName('nom').setDescription('Rôle').setRequired(true)
+      .addChoices(...SELF_ROLES.map((r) => ({ name: r.name, value: r.key })))),
 ].map((c) => c.toJSON());
 
 client.once('ready', async () => {
   const guild = await client.guilds.fetch(GUILD_ID);
   await guild.commands.set(commands);
-  client.user.setActivity('le QG 🌙');
+  client.user.setActivity('『🌙』Le QG');
   console.log(`✅ ${client.user.tag} est en ligne`);
 });
 
 client.on('guildMemberAdd', async (member) => {
-  const memberRole = findRole(member.guild, 'Membre');
+  const memberRole = findRole(member.guild, '😎・Membre');
   if (memberRole) await member.roles.add(memberRole).catch(() => {});
   const ch = findChannel(member.guild, 'discussion');
   ch?.send({ embeds: [new EmbedBuilder().setColor(0x2ecc71).setThumbnail(member.displayAvatarURL())
@@ -93,10 +96,11 @@ client.on('interactionCreate', async (i) => {
         log(i.guild, `🔨 ${user.tag} banni par ${i.user} — ${reason}`);
         return i.reply(`🔨 ${user.tag} a été banni.`);
       case 'role': {
-        const role = findRole(i.guild, 'Joueur GTA');
-        if (i.member.roles.cache.has(role.id)) { await i.member.roles.remove(role); return reply('Rôle 🚗 Joueur GTA retiré.'); }
+        const def = SELF_ROLES.find((r) => r.key === i.options.getString('nom'));
+        const role = findRole(i.guild, def.name);
+        if (i.member.roles.cache.has(role.id)) { await i.member.roles.remove(role); return reply(`Rôle ${role.name} retiré.`); }
         await i.member.roles.add(role);
-        return reply('Rôle 🚗 Joueur GTA ajouté !');
+        return reply(`Rôle ${role.name} ajouté !`);
       }
     }
   } catch (e) {
