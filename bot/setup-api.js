@@ -62,7 +62,9 @@ const staff = [roles.owner, roles.cofond, ...ROLES.filter((r) => r.staff).map((r
 const role = (r, allow, deny) => ({ id: r.id, type: 0, ...(allow && { allow: bits(...allow) }), ...(deny && { deny: bits(...deny) }) });
 const everyone = { id: GUILD_ID };
 const write = ['SendMessages', 'CreatePublicThreads', 'CreatePrivateThreads', 'SendMessagesInThreads'];
-const overwrites = (access) => ({
+const overwrites = (access) => Array.isArray(access)
+  ? [role(everyone, null, ['ViewChannel']), ...access.map((k) => role(roles[k], ['ViewChannel', 'Connect']))]
+  : ({
   readonly: [role(everyone, ['ViewChannel'], write), ...staff.map((r) => role(r, ['SendMessages']))],
   anim:     [role(everyone, ['ViewChannel'], write), ...[...staff, roles.anim].map((r) => role(r, ['SendMessages']))],
   team:     [role(everyone, null, ['ViewChannel']), ...[roles.team, ...staff].map((r) => role(r, ['ViewChannel']))],
@@ -77,10 +79,11 @@ for (const cat of CATEGORIES) {
   const category = await api('POST', `${G}/channels`, { name: cat.name, type: 4, permission_overwrites: overwrites(cat.access) });
   for (const [idx, ch] of cat.channels.entries()) {
     const type = ch.type ?? 'text';
-    const branch = idx === 0 ? '╭' : idx === cat.channels.length - 1 ? '╰' : '│';
+    const branch = idx === 0 ? '╭' : idx === cat.channels.length - 1 ? '╰' : '｜';
     const spec = {
       name: branch + ch.name, parent_id: category.id, ...(ch.topic && { topic: ch.topic }),
-      permission_overwrites: ch.access ? [...overwrites(cat.access), ...overwrites(ch.access)] : overwrites(cat.access),
+      permission_overwrites: Array.isArray(ch.access) ? overwrites(ch.access)
+        : ch.access ? [...overwrites(cat.access), ...overwrites(ch.access)] : overwrites(cat.access),
       ...(type === 'text' && { rate_limit_per_user: cat.access || ch.access ? 0 : 2 }),
     };
     if (type === 'forum') { later.push({ ch, spec, position: idx }); continue; }
@@ -142,7 +145,7 @@ const byPart = (p) => allChannels.find((c) => c.name.includes(p))?.id;
 await api('PUT', `${G}/onboarding`, {
   enabled: true, mode: 0,
   default_channel_ids: [...textIds(['welcome', 'rules', 'annonces', 'roles', 'general']),
-    ...['présentations', 'médias', 'memes', 'commandes', 'gta-discussion', 'compteur', 'aide'].map(byPart)].filter(Boolean),
+    ...['présentations', 'médias', 'memes', 'commandes', 'gta-discussion', 'compteur', 'question'].map(byPart)].filter(Boolean),
   prompts: [
     { id: snow(), type: 0, title: 'À quoi tu joues ?', single_select: false, required: false, in_onboarding: true, options: opt('jeux') },
     { id: snow(), type: 0, title: 'Sur quelle plateforme ?', single_select: false, required: false, in_onboarding: true, options: opt('plateforme') },

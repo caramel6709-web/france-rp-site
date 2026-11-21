@@ -49,29 +49,30 @@ export const ROLES = [
 ];
 
 // type : text (défaut) | voice | news (annonces suivables) | forum
-// access : readonly | team | staff | locked (vocal réservé Team/VIP/staff) | anim (seuls staff + animateurs écrivent)
+// access : readonly | anim | team | staff | locked | ['clé de rôle', ...] (salon visible seulement par ces rôles + fondateurs)
+const DIRECTION = ['direc'];
+const ADMIN = [...DIRECTION, 'admin'];
+const STAFF = [...ADMIN, 'modo', 'support', 'test'];
 export const CATEGORIES = [
+  { name: '『🏠』・ACCUEIL', channels: [
+    { key: 'welcome',  name: '『🌅』bienvenue',  access: 'readonly' },
+    { key: 'rules',    name: '『📖』règlement',  access: 'readonly' },
+    { key: 'roles',    name: '『🎭』rôles',      access: 'readonly' },
+    { name: '『🌐』réseaux',    access: 'readonly' },
+    { name: '『💜』boosts',     access: 'readonly' },
+  ]},
   { name: '『📌』・INFORMATIONS', channels: [
-    { key: 'welcome',  name: '『🌅』bienvenue',    access: 'readonly' },
-    { key: 'rules',    name: '『📖』règlement',    access: 'readonly' },
-    { key: 'annonces', name: '『📣』annonces',     access: 'readonly', type: 'news' },
-    { key: 'roles',    name: '『🎭』rôles',        access: 'readonly' },
+    { key: 'annonces', name: '『📣』annonces', access: 'readonly', type: 'news' },
+    { name: '『🛠️』mises-à-jour', access: 'readonly' },
     { name: '『🎪』événements',  access: 'anim' },
     { name: '『🎁』giveaways',   access: 'anim' },
     { name: '『🗳️』sondages',    access: 'readonly' },
     { name: '『🤝』partenariats', access: 'readonly' },
-    { name: '『🌐』réseaux',     access: 'readonly' },
-    { name: '『💜』boosts',      access: 'readonly' },
-  ]},
-  { name: '『🎫』・SUPPORT', channels: [
-    { name: '『❓』aide' },
-    { name: '『🚨』signalements' },
-    { name: '『💡』suggestions', type: 'forum', topic: 'Une idée pour le serveur ? Crée un post !' },
     { name: '『📋』recrutement', access: 'readonly' },
   ]},
-  { name: '『🌍』・COMMUNAUTÉ', channels: [
+  { name: '『🌍』・SOCIAL', channels: [
     { key: 'general', name: '『💬』discussion' },
-    { name: '『🙋』présentations', topic: 'Présente-toi : prénom/pseudo, âge, jeux préférés…' },
+    { name: '『🙋』présentations', topic: 'Présente-toi : pseudo, âge, jeux préférés…' },
     { name: '『🖼️』médias' },
     { name: '『🤣』memes' },
     { name: '『🗂️』forum', type: 'forum', topic: 'Discussions longues, guides et débats.' },
@@ -84,7 +85,6 @@ export const CATEGORIES = [
     { name: '『🏆』best-of', topic: 'Les meilleurs moments et phrases cultes du serveur.' },
     { name: '『⌨️』ton-setup', topic: 'Montre ton setup !' },
     { name: '『🐶』animaux' },
-    { name: '『🍕』food' },
   ]},
   { name: '『🌴』・GTA 6', channels: [
     { name: '『🗞️』gta6-news', access: 'readonly', type: 'news' },
@@ -98,13 +98,12 @@ export const CATEGORIES = [
     { name: '『🎯』jeux-du-moment' },
     { name: '『🎥』clips' },
     { name: '『🔍』cherche-joueurs' },
-    { name: '『🧩』roblox' },
   ]},
-  { name: '『⭐』・ESPACE TEAM', access: 'team', channels: [
-    { name: '『🌟』team-chat' },
-    { name: '『📅』planning' },
-    { name: '『💭』idées' },
-    { name: '『✨』Team', type: 'voice' },
+  { name: '『🎫』・SUPPORT', channels: [
+    { name: '『❓』question' },
+    { name: '『🚨』signalements' },
+    { name: '『💡』suggestions', type: 'forum', topic: 'Une idée pour le serveur ? Crée un post !' },
+    { name: '『🐞』bug-reports' },
   ]},
   { name: '『🔊』・VOCAUX', channels: [
     { name: '『🔈』Général 1', type: 'voice' },
@@ -112,19 +111,33 @@ export const CATEGORIES = [
     { name: '『🏖️』GTA Session', type: 'voice' },
     { name: '『👾』Gaming', type: 'voice' },
     { name: '『🎶』Musique', type: 'voice' },
-    { name: '『📺』Stream', type: 'voice' },
     { name: '『🔒』Privé', type: 'voice', access: 'locked' },
     { key: 'afk', name: '『💤』AFK', type: 'voice' },
   ]},
-  { name: '『🔐』・STAFF', access: 'staff', channels: [
-    { name: '『🛡️』staff-chat' },
+  { name: '『⭐』・ESPACE TEAM', access: 'team', channels: [
+    { name: '『🌟』team-chat' },
+    { name: '『📅』planning' },
+    { name: '『✨』Team', type: 'voice' },
+  ]},
+  { name: '『🏢』・BUREAUX', access: 'staff', channels: [
+    { name: '『🏛️』bureau-direction',      access: DIRECTION },
+    { name: '『🛡️』bureau-administration', access: ADMIN },
+    { name: '『🔨』bureau-modération',     access: STAFF },
+    { name: '『📝』bureau-recrutement',    access: [...ADMIN, 'recrut'] },
+    { name: '『🎉』bureau-animation',      access: [...STAFF, 'anim'] },
+    { name: '『🤲』bureau-partenariats',   access: ADMIN },
+    { name: '『🎨』bureau-graphisme',      access: [...ADMIN, 'graph'] },
+    { name: '『💻』bureau-développement',  access: [...ADMIN, 'dev'] },
+    { name: '『🗣️』Réunion', type: 'voice', access: STAFF },
+    { name: '『🏦』Bureau Direction', type: 'voice', access: DIRECTION },
+  ]},
+  { name: '『🔐』・GESTION', access: 'staff', channels: [
+    { name: '『☕』staff-chat' },
     { name: '『📢』annonces-staff', access: 'readonly' },
     { key: 'logs', name: '『📜』logs' },
     { name: '『⚖️』sanctions' },
     { name: '『🗃️』candidatures' },
     { key: 'modupdates', name: '『📬』discord-updates' },
-    { name: '『🎙️』Réunion', type: 'voice' },
-    { name: '『🗣️』Staff', type: 'voice' },
   ]},
 ];
 
