@@ -45,6 +45,19 @@ client.once('ready', async () => {
   await guild.commands.set(commands);
   client.user.setActivity('『🌴』Sunset Club');
   console.log(`✅ ${client.user.tag} est en ligne`);
+  // Compteurs SERVER STATS (Discord limite les renommages : toutes les 10 min)
+  const updateStats = async () => {
+    const g = await client.guilds.fetch(GUILD_ID);
+    const chans = await g.channels.fetch();
+    const set = (prefix, value) => {
+      const c = chans.find((x) => x?.name.startsWith(prefix));
+      if (c && c.name !== `${prefix} : ${value}`) c.setName(`${prefix} : ${value}`).catch(() => {});
+    };
+    set('『🌟』Membres', g.memberCount);
+    set('『🚀』Boosts', g.premiumSubscriptionCount ?? 0);
+  };
+  updateStats();
+  setInterval(updateStats, 10 * 60 * 1000);
 });
 
 client.on('guildMemberAdd', async (member) => {

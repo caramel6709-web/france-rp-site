@@ -62,33 +62,36 @@ const staff = [roles.owner, roles.cofond, ...ROLES.filter((r) => r.staff).map((r
 const role = (r, allow, deny) => ({ id: r.id, type: 0, ...(allow && { allow: bits(...allow) }), ...(deny && { deny: bits(...deny) }) });
 const everyone = { id: GUILD_ID };
 const write = ['SendMessages', 'CreatePublicThreads', 'CreatePrivateThreads', 'SendMessagesInThreads'];
-const overwrites = (access) => Array.isArray(access)
-  ? [role(everyone, null, ['ViewChannel']), ...access.map((k) => role(roles[k], ['ViewChannel', 'Connect']))]
-  : ({
-  readonly: [role(everyone, ['ViewChannel'], write), ...staff.map((r) => role(r, ['SendMessages']))],
-  anim:     [role(everyone, ['ViewChannel'], write), ...[...staff, roles.anim].map((r) => role(r, ['SendMessages']))],
-  team:     [role(everyone, null, ['ViewChannel']), ...[roles.team, ...staff].map((r) => role(r, ['ViewChannel']))],
-  staff:    [role(everyone, null, ['ViewChannel']), ...staff.map((r) => role(r, ['ViewChannel']))],
-  locked:   [role(everyone, null, ['Connect']), ...[roles.team, roles.vip, ...staff].map((r) => role(r, ['Connect']))],
-}[access] ?? []);
+const overwrites = (access) => {
+  if (Array.isArray(access)) return [role(everyone, null, ['ViewChannel']), ...access.map((k) => role(roles[k], ['ViewChannel', 'Connect']))];
+  if (access?.connect) return [role(everyone, ['ViewChannel'], ['Connect']), ...access.connect.map((k) => role(roles[k], ['Connect', 'Speak']))];
+  return ({
+    readonly: [role(everyone, ['ViewChannel'], write), ...staff.map((r) => role(r, ['SendMessages']))],
+    anim:     [role(everyone, ['ViewChannel'], write), ...[...staff, roles.anim].map((r) => role(r, ['SendMessages']))],
+    team:     [role(everyone, null, ['ViewChannel']), ...[roles.team, ...staff].map((r) => role(r, ['ViewChannel']))],
+    staff:    [role(everyone, null, ['ViewChannel']), ...staff.map((r) => role(r, ['ViewChannel']))],
+  })[access] ?? [];
+};
 
-// Salons (les salons « news » et « forum » nécessitent le mode Communauté : créés en texte puis convertis)
-const TYPES = { text: 0, voice: 2, news: 0, forum: 0 };
+// Salons (« news » et « forum » nécessitent le mode Communauté : convertis / créés après)
+const counts = await api('GET', `${G}?with_counts=true`);
+const fill = (n) => n.replace('{members}', counts.approximate_member_count ?? 1).replace('{boosts}', counts.premium_subscription_count ?? 0);
 const channels = {}, later = [];
 for (const cat of CATEGORIES) {
-  const category = await api('POST', `${G}/channels`, { name: cat.name, type: 4, permission_overwrites: overwrites(cat.access) });
+  const category = cat.name && await api('POST', `${G}/channels`, { name: cat.name, type: 4, permission_overwrites: overwrites(cat.access) });
   for (const [idx, ch] of cat.channels.entries()) {
     const type = ch.type ?? 'text';
-    const branch = idx === 0 ? '╭' : idx === cat.channels.length - 1 ? '╰' : '｜';
+    const branch = cat.bars === false ? '' : idx === 0 ? '╭' : idx === cat.channels.length - 1 ? '╰' : '｜';
+    const own = ch.access && (Array.isArray(ch.access) || ch.access.connect);
     const spec = {
-      name: branch + ch.name, parent_id: category.id, ...(ch.topic && { topic: ch.topic }),
-      permission_overwrites: Array.isArray(ch.access) ? overwrites(ch.access)
-        : ch.access ? [...overwrites(cat.access), ...overwrites(ch.access)] : overwrites(cat.access),
+      name: branch + fill(ch.name), ...(category && { parent_id: category.id }), ...(ch.topic && { topic: ch.topic }),
+      permission_overwrites: own ? overwrites(ch.access) : ch.access ? [...overwrites(cat.access), ...overwrites(ch.access)] : overwrites(cat.access),
       ...(type === 'text' && { rate_limit_per_user: cat.access || ch.access ? 0 : 2 }),
+      ...(ch.limit && { user_limit: ch.limit }),
     };
-    if (type === 'forum') { later.push({ ch, spec, position: idx }); continue; }
-    const c = await api('POST', `${G}/channels`, { ...spec, type: TYPES[type], position: idx });
-    if (type === 'news') later.push({ ch, convert: c });
+    if (type === 'forum') { later.push({ spec, position: idx }); continue; }
+    const c = await api('POST', `${G}/channels`, { ...spec, type: type === 'voice' ? 2 : 0, position: idx });
+    if (type === 'news') later.push({ convert: c });
     if (ch.key) channels[ch.key] = c;
     console.log(`  salon ${spec.name}`);
   }
@@ -121,15 +124,12 @@ const r = (k) => `<@&${roles[k].id}>`;
 await send('rules', { title: '『📖』・Règlement', description: RULES, color: 0xe74c3c });
 await send('welcome', { title: `Bienvenue sur ${SERVER_NAME} !`, color: 0xff6b9d, description:
   `${e('partyblob', '🎉')} Un serveur **communautaire et chill** : GTA 6, gaming, memes et bonne ambiance.\n\n` +
-  `『📖』・Lis le ${ch('rules')}\n『🎭』・Choisis tes rôles via **Salons & rôles** (en haut de la liste)\n` +
+  `『📄』・Lis le ${ch('rules')}\n『🎭』・Choisis tes rôles via **Salons & rôles** (en haut de la liste)\n` +
   `『💬』・Viens parler dans ${ch('general')}\n\nBon séjour ! ${e('blobcool', '😎')}` });
-await send('roles', { title: '『🎭』・Les rôles', color: 0x5865f2, description:
-  `**『👑』・Direction**\n${r('owner')} ・ ${r('cofond')} ・ ${r('direc')}\n\n` +
-  `**『🛡️』・Staff**\n${r('admin')} ・ ${r('modo')} ・ ${r('support')} ・ ${r('test')}\n\n` +
-  `**『🎪』・Équipes**\n${r('anim')} ・ ${r('recrut')} ・ ${r('graph')} ・ ${r('dev')}\n\n` +
-  `**『⭐』・Communauté**\n${r('partner')} — serveurs partenaires\n${r('team')} — membres de la team (espace Team)\n` +
-  `${r('vip')} — proches et boosters\n${r('ancien')} — là depuis le début\n${r('actif')} — les plus actifs\n${r('member')} — tout le monde\n\n` +
-  `**『🎮』・Profil & notifications**\nÀ choisir toi-même dans **Salons & rôles** : jeux, plateforme et notifications.` });
+const groups = []; for (const x of ROLES) { if (x.sep) groups.push({ title: x.name.match(/『 (.+) 』/)[1], list: [] }); else groups.at(-1).list.push(x); }
+await send('roles', { title: '『🔔』・Rôles & notifications', color: 0x5865f2, description: groups.map((g) =>
+  `**[•] ${g.title[0] + g.title.slice(1).toLowerCase()} [•]**\n${g.list.map((x) => r(x.key)).join(' ・ ')}`).join('\n\n') +
+  `\n\n➡️ Les rôles **Profil** et **Notifications** se choisissent dans **Salons & rôles** (en haut de la liste des salons).` });
 await send('annonces', { title: '『🎉』・Ouverture !', color: 0x2ecc71,
   description: `${SERVER_NAME} est ouvert ${e('PepoDance', '🥳')} Invite tes potes !` });
 
@@ -145,7 +145,7 @@ const byPart = (p) => allChannels.find((c) => c.name.includes(p))?.id;
 await api('PUT', `${G}/onboarding`, {
   enabled: true, mode: 0,
   default_channel_ids: [...textIds(['welcome', 'rules', 'annonces', 'roles', 'general']),
-    ...['médias', 'commandes', 'jeux', 'gta-discussion', 'spoilers', 'question', 'demande-aide'].map(byPart)].filter(Boolean),
+    ...['médias', 'commandes', 'jeux', 'gta-discussion', 'spoilers', 'question', 'bug-reports'].map(byPart)].filter(Boolean),
   prompts: [
     { id: snow(), type: 0, title: 'À quoi tu joues ?', single_select: false, required: false, in_onboarding: true, options: opt('jeux') },
     { id: snow(), type: 0, title: 'Sur quelle plateforme ?', single_select: false, required: false, in_onboarding: true, options: opt('plateforme') },
