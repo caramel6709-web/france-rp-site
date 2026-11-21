@@ -1,104 +1,143 @@
-// Structure du serveur — style 『emoji』・nom. Modifie librement.
+// Structure du serveur communautaire « Sunset Club » — style ╭『emoji』nom
 export const SERVER_NAME = '『🌴』Sunset Club';
+export const DESCRIPTION = '🌴 Serveur communautaire chill : GTA 6, gaming, memes et bonne ambiance. Rejoins la team !';
 
-// self: rôle que les membres peuvent prendre eux-mêmes avec /role
+const STAFF_BASE = ['ManageMessages', 'ManageThreads', 'ModerateMembers', 'MoveMembers', 'MuteMembers'];
+// sep: rôle séparateur (décoratif, sans permission)
 export const ROLES = [
-  { key: 'owner',   name: '👑・Fondateur',       color: 0xf1c40f, hoist: true,  perms: ['Administrator'] },
-  { key: 'cofond',  name: '💼・Co-Fondateur',    color: 0xe67e22, hoist: true,  perms: ['Administrator'] },
-  { key: 'admin',   name: '🛡️・Administrateur',  color: 0xe74c3c, hoist: true,  perms: ['Administrator'] },
-  { key: 'modo',    name: '🔨・Modérateur',      color: 0x3498db, hoist: true,
-    perms: ['KickMembers', 'BanMembers', 'ModerateMembers', 'ManageMessages', 'MuteMembers', 'MoveMembers', 'ViewAuditLog', 'ManageNicknames'] },
-  { key: 'helper',  name: '🧩・Helper',          color: 0x1abc9c, hoist: true,  perms: ['ModerateMembers', 'ManageMessages'] },
-  { key: 'team',    name: '⭐・Team',            color: 0xff6b9d, hoist: true,  perms: [] },
-  { key: 'vip',     name: '💎・VIP',             color: 0x9b59b6, hoist: true,  perms: [] },
-  { key: 'actif',   name: '🔥・Membre Actif',    color: 0xff7f50, hoist: false, perms: [] },
-  { key: 'member',  name: '😎・Membre',          color: 0x95a5a6, hoist: true,  perms: [] },
-  { key: 'gta6',    name: '🌴・GTA 6',           color: 0xff4fa3, hoist: false, perms: [], self: true },
-  { key: 'gtav',    name: '🚗・GTA V',           color: 0x2ecc71, hoist: false, perms: [], self: true },
-  { key: 'gamer',   name: '🎮・Gamer',           color: 0x5865f2, hoist: false, perms: [], self: true },
-  { key: 'notif',   name: '🔔・Notif Annonces',  color: 0x99aab5, hoist: false, perms: [], self: true },
-  { key: 'event',   name: '🎉・Notif Events',    color: 0x99aab5, hoist: false, perms: [], self: true },
+  { sep: true, name: '━━━━━━ 『 DIRECTION 』 ━━━━━━' },
+  { key: 'owner',  name: '👑・Fondateur',      color: 0xf1c40f, hoist: true, perms: ['Administrator'] },
+  { key: 'cofond', name: '💼・Co-Fondateur',   color: 0xf39c12, hoist: true, perms: ['Administrator'] },
+  { key: 'direc',  name: '🏛️・Direction',      color: 0xe67e22, hoist: true, staff: true,
+    perms: [...STAFF_BASE, 'ManageGuild', 'ManageRoles', 'ManageChannels', 'ManageWebhooks', 'ManageGuildExpressions', 'ManageEvents',
+      'ViewAuditLog', 'KickMembers', 'BanMembers', 'ManageNicknames', 'MentionEveryone', 'DeafenMembers'] },
+  { sep: true, name: '━━━━━━━ 『 STAFF 』 ━━━━━━━' },
+  { key: 'admin',  name: '🛡️・Administrateur', color: 0xe74c3c, hoist: true, staff: true,
+    perms: [...STAFF_BASE, 'ManageChannels', 'ManageEvents', 'ViewAuditLog', 'KickMembers', 'BanMembers', 'ManageNicknames', 'MentionEveryone', 'DeafenMembers'] },
+  { key: 'modo',   name: '🔨・Modérateur',     color: 0x3498db, hoist: true, staff: true,
+    perms: [...STAFF_BASE, 'ViewAuditLog', 'KickMembers', 'ManageNicknames'] },
+  { key: 'support', name: '🎧・Support',        color: 0x1abc9c, hoist: true, staff: true, perms: STAFF_BASE },
+  { key: 'test',   name: '🧪・Staff Test',      color: 0x16a085, hoist: true, staff: true, perms: ['ManageMessages', 'MoveMembers'] },
+  { sep: true, name: '━━━━━━ 『 ÉQUIPES 』 ━━━━━━' },
+  { key: 'anim',   name: '🎪・Animateur',       color: 0xff6b9d, hoist: true, perms: ['ManageEvents', 'CreateEvents', 'MoveMembers', 'PrioritySpeaker'] },
+  { key: 'recrut', name: '📝・Recruteur',       color: 0xa29bfe, hoist: false, perms: [] },
+  { key: 'graph',  name: '🎨・Graphiste',       color: 0xfd79a8, hoist: false, perms: ['CreateGuildExpressions'] },
+  { key: 'dev',    name: '💻・Développeur',     color: 0x00cec9, hoist: false, perms: ['ManageWebhooks'] },
+  { sep: true, name: '━━━━━ 『 COMMUNAUTÉ 』 ━━━━━' },
+  { key: 'partner', name: '🤝・Partenaire',     color: 0x6c5ce7, hoist: true, perms: [] },
+  { key: 'team',   name: '⭐・Team',            color: 0xffeaa7, hoist: true, perms: ['ChangeNickname'] },
+  { key: 'vip',    name: '💎・VIP',             color: 0x9b59b6, hoist: true, perms: ['AttachFiles', 'EmbedLinks', 'UseExternalEmojis', 'UseExternalStickers'] },
+  { key: 'ancien', name: '🏅・Ancien',          color: 0xb2bec3, hoist: false, perms: [] },
+  { key: 'actif',  name: '🔥・Membre Actif',    color: 0xff7f50, hoist: false, perms: [] },
+  { key: 'member', name: '✅・Membre',          color: 0x95a5a6, hoist: false, perms: [] },
+  { sep: true, name: '━━━━━━ 『 PROFIL 』 ━━━━━━' },
+  { key: 'gta6',   name: '🏝️・GTA 6',          color: 0xff4fa3, self: 'jeux' },
+  { key: 'gtav',   name: '🚗・GTA V',           color: 0x2ecc71, self: 'jeux' },
+  { key: 'roblox', name: '🧱・Roblox',          color: 0xd63031, self: 'jeux' },
+  { key: 'fn',     name: '🪂・Fortnite',        color: 0x0984e3, self: 'jeux' },
+  { key: 'mc',     name: '⛏️・Minecraft',       color: 0x55a630, self: 'jeux' },
+  { key: 'pc',     name: '🖥️・PC',              color: 0x636e72, self: 'plateforme' },
+  { key: 'ps',     name: '🎮・PlayStation',     color: 0x0652dd, self: 'plateforme' },
+  { key: 'xbox',   name: '🟩・Xbox',            color: 0x107c10, self: 'plateforme' },
+  { key: 'mobile', name: '📱・Mobile',          color: 0xb2bec3, self: 'plateforme' },
+  { sep: true, name: '━━━━ 『 NOTIFICATIONS 』 ━━━━' },
+  { key: 'nAnn',   name: '🔔・Notif Annonces',  color: 0x99aab5, self: 'notifs' },
+  { key: 'nEvent', name: '🎉・Notif Events',    color: 0x99aab5, self: 'notifs' },
+  { key: 'nGive',  name: '🎁・Notif Giveaways', color: 0x99aab5, self: 'notifs' },
+  { key: 'nSond',  name: '📊・Notif Sondages',  color: 0x99aab5, self: 'notifs' },
+  { key: 'nGta',   name: '📰・Notif GTA 6',     color: 0x99aab5, self: 'notifs' },
 ];
 
-// access : 'readonly' (lecture seule), 'team' (Team + staff), 'staff', 'locked' (vocal : seuls Team/VIP/staff rejoignent)
-// Les traits ╭ │ ╰ sont ajoutés automatiquement devant chaque salon.
+// type : text (défaut) | voice | news (annonces suivables) | forum
+// access : readonly | team | staff | locked (vocal réservé Team/VIP/staff) | anim (seuls staff + animateurs écrivent)
 export const CATEGORIES = [
   { name: '『📌』・INFORMATIONS', channels: [
-    { key: 'welcome',  name: '『👋』bienvenue', access: 'readonly' },
-    { key: 'rules',    name: '『📜』règlement', access: 'readonly' },
-    { key: 'annonces', name: '『📢』annonces',  access: 'readonly' },
-    { key: 'roles',    name: '『🎭』rôles',     access: 'readonly' },
-    { name: '『🎁』giveaways', access: 'readonly' },
-    { name: '『🚀』boosts',    access: 'readonly' },
-    { name: '『🔗』réseaux',   access: 'readonly' },
+    { key: 'welcome',  name: '『🌅』bienvenue',    access: 'readonly' },
+    { key: 'rules',    name: '『📖』règlement',    access: 'readonly' },
+    { key: 'annonces', name: '『📣』annonces',     access: 'readonly', type: 'news' },
+    { key: 'roles',    name: '『🎭』rôles',        access: 'readonly' },
+    { name: '『🎪』événements',  access: 'anim' },
+    { name: '『🎁』giveaways',   access: 'anim' },
+    { name: '『🗳️』sondages',    access: 'readonly' },
+    { name: '『🤝』partenariats', access: 'readonly' },
+    { name: '『🌐』réseaux',     access: 'readonly' },
+    { name: '『💜』boosts',      access: 'readonly' },
+  ]},
+  { name: '『🎫』・SUPPORT', channels: [
+    { name: '『❓』aide' },
+    { name: '『🚨』signalements' },
+    { name: '『💡』suggestions', type: 'forum', topic: 'Une idée pour le serveur ? Crée un post !' },
+    { name: '『📋』recrutement', access: 'readonly' },
   ]},
   { name: '『🌍』・COMMUNAUTÉ', channels: [
     { key: 'general', name: '『💬』discussion' },
-    { name: '『📸』médias' },
-    { name: '『😂』memes' },
-    { name: '『🎵』musique' },
-    { name: '『🐾』animaux' },
-    { name: '『🍔』food' },
+    { name: '『🙋』présentations', topic: 'Présente-toi : prénom/pseudo, âge, jeux préférés…' },
+    { name: '『🖼️』médias' },
+    { name: '『🤣』memes' },
+    { name: '『🗂️』forum', type: 'forum', topic: 'Discussions longues, guides et débats.' },
+    { name: '『🎧』musique' },
     { name: '『🤖』commandes' },
   ]},
-  { name: '『🎉』・FUN', channels: [
-    { name: '『🔢』compteur', topic: 'Comptez de 1 en 1, chacun son tour. Celui qui se trompe recommence à 1 !' },
-    { name: '『🔤』mot-suivant', topic: 'Écris un mot qui commence par la dernière lettre du mot précédent.' },
+  { name: '『🎈』・DÉTENTE', channels: [
+    { name: '『🔢』compteur', topic: 'Comptez de 1 en 1, chacun son tour. Une erreur = retour à 1 !' },
+    { name: '『🔤』mot-suivant', topic: 'Un mot qui commence par la dernière lettre du mot précédent.' },
     { name: '『🏆』best-of', topic: 'Les meilleurs moments et phrases cultes du serveur.' },
-    { name: '『🖥️』ton-setup', topic: 'Montre ton setup gaming !' },
-    { name: '『📊』sondages', access: 'readonly' },
+    { name: '『⌨️』ton-setup', topic: 'Montre ton setup !' },
+    { name: '『🐶』animaux' },
+    { name: '『🍕』food' },
   ]},
   { name: '『🌴』・GTA 6', channels: [
-    { name: '『📰』gta6-news', access: 'readonly' },
-    { name: '『🎬』trailers-leaks' },
-    { name: '『🗺️』théories-map' },
-    { name: '『💬』gta-discussion' },
+    { name: '『🗞️』gta6-news', access: 'readonly', type: 'news' },
+    { name: '『🎬』trailers' },
+    { name: '『🧠』théories' },
+    { name: '『🚘』gta-discussion' },
     { name: '『📷』screens-clips' },
-    { name: '『🤝』cherche-crew' },
+    { name: '『👥』cherche-crew' },
   ]},
-  { name: '『🎮』・GAMING', channels: [
-    { name: '『🕹️』jeux-du-moment' },
+  { name: '『🕹️』・GAMING', channels: [
+    { name: '『🎯』jeux-du-moment' },
     { name: '『🎥』clips' },
     { name: '『🔍』cherche-joueurs' },
-    { name: '『🏅』exploits', topic: 'Tes plus gros exploits, records et trophées.' },
-  ]},
-  { name: '『🎫』・SUPPORT', channels: [
-    { name: '『❓』question' },
-    { name: '『🚨』signalements' },
-    { name: '『💡』suggestions' },
+    { name: '『🧩』roblox' },
   ]},
   { name: '『⭐』・ESPACE TEAM', access: 'team', channels: [
-    { name: '『⭐』team-chat' },
+    { name: '『🌟』team-chat' },
     { name: '『📅』planning' },
     { name: '『💭』idées' },
-    { name: '『⭐』Team', type: 'voice' },
+    { name: '『✨』Team', type: 'voice' },
   ]},
   { name: '『🔊』・VOCAUX', channels: [
-    { name: '『🔊』Général 1', type: 'voice' },
-    { name: '『🔊』Général 2', type: 'voice' },
-    { name: '『🌴』GTA 6', type: 'voice' },
-    { name: '『🎮』Gaming', type: 'voice' },
-    { name: '『🎵』Musique', type: 'voice' },
+    { name: '『🔈』Général 1', type: 'voice' },
+    { name: '『🔉』Général 2', type: 'voice' },
+    { name: '『🏖️』GTA Session', type: 'voice' },
+    { name: '『👾』Gaming', type: 'voice' },
+    { name: '『🎶』Musique', type: 'voice' },
+    { name: '『📺』Stream', type: 'voice' },
     { name: '『🔒』Privé', type: 'voice', access: 'locked' },
     { key: 'afk', name: '『💤』AFK', type: 'voice' },
   ]},
-  { name: '『🛡️』・STAFF', access: 'staff', channels: [
+  { name: '『🔐』・STAFF', access: 'staff', channels: [
     { name: '『🛡️』staff-chat' },
-    { key: 'logs', name: '『📋』logs' },
+    { name: '『📢』annonces-staff', access: 'readonly' },
+    { key: 'logs', name: '『📜』logs' },
     { name: '『⚖️』sanctions' },
-    { name: '『🔒』Staff', type: 'voice' },
+    { name: '『🗃️』candidatures' },
+    { key: 'modupdates', name: '『📬』discord-updates' },
+    { name: '『🎙️』Réunion', type: 'voice' },
+    { name: '『🗣️』Staff', type: 'voice' },
   ]},
 ];
 
 export const RULES = `**『🤝』・Respect** — Pas d'insultes, de harcèlement, de racisme ni de discriminations.
 **『🚫』・Spam** — Pas de spam, de flood ni de majuscules à outrance.
-**『📢』・Pub** — Pas de pub (serveurs, réseaux…) sans l'accord du staff.
+**『📢』・Pub** — Pas de pub (serveurs, réseaux…) sans l'accord du staff, même en MP.
 **『🔞』・Contenu** — Rien de NSFW, choquant ou illégal.
-**『🎮』・Triche** — Pas de cheat ni de vente de comptes/argent GTA.
+**『🎮』・Triche** — Pas de cheat ni de vente de comptes/argent.
 **『📂』・Salons** — Chaque sujet dans le bon salon.
-**『🛡️』・Staff** — Les décisions du staff se respectent. Un souci ? Contacte un 🔨・Modérateur.
+**『🪪』・Profil** — Pseudo et photo de profil corrects.
+**『🛡️』・Staff** — Les décisions du staff se respectent. Un souci ? Écris dans 『🚨』signalements.
 
 ⚠️ **Sanctions** : avertissement → mute → kick → ban.
-*En restant ici, tu acceptes ce règlement.* 🌙`;
+*En restant ici, tu acceptes ce règlement et les [conditions de Discord](https://discord.com/terms).*`;
 
-export const BANNED_WORDS = ['*nigg*', '*pédé*', 'fdp', 'ntm', '*discord.gg/*'];
+export const BANNED_WORDS = ['*nigg*', '*pédé*', 'fdp', 'ntm', '*discord.gg/*', '*discord.com/invite*'];

@@ -48,7 +48,7 @@ client.once('ready', async () => {
 });
 
 client.on('guildMemberAdd', async (member) => {
-  const memberRole = findRole(member.guild, '😎・Membre');
+  const memberRole = findRole(member.guild, '✅・Membre');
   if (memberRole) await member.roles.add(memberRole).catch(() => {});
   const ch = findChannel(member.guild, 'discussion');
   ch?.send({ embeds: [new EmbedBuilder().setColor(0x2ecc71).setThumbnail(member.displayAvatarURL())
