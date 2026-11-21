@@ -1,4 +1,4 @@
-# 🌴 Sunset Club — bot Soleria
+# 🌴 Palm Society — bot Palmy
 
 Configure automatiquement un serveur Discord chill + GTA et le modère.
 
@@ -28,3 +28,8 @@ Configure automatiquement un serveur Discord chill + GTA et le modère.
 
 Pour que le bot reste en ligne 24h/24, héberge `npm start` sur un hébergeur (ex. un petit VPS ou un hébergeur de bots Discord).
 Tout se personnalise dans `config.js`.
+
+## Commandes du bot (`npm start`)
+- **Infos & fun** : `/aide` `/ping` `/serveur` `/profil` `/avatar` `/sondage` `/pileouface` `/de` `/8ball` `/role`
+- **IA (Claude)** : `/ia <question>` ou mentionner le bot. Nécessite `ANTHROPIC_API_KEY` dans `.env`.
+- **Staff** : `/annonce` `/dire` `/clear` `/slowmode` `/lock` `/warn` `/warns` `/mute` `/unmute` `/kick` `/ban` `/unban`

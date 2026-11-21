@@ -1,6 +1,6 @@
 // Structure du serveur communautaire « Sunset Club » — style ╭『emoji』nom
-export const SERVER_NAME = '『🌴』Sunset Club';
-export const DESCRIPTION = '🌴 Serveur communautaire chill : GTA 6, gaming, memes et bonne ambiance. Rejoins la team !';
+export const SERVER_NAME = '『🌴』Palm Society';
+export const DESCRIPTION = '🌴 Palm Society — serveur communautaire chill : GTA 6, gaming, memes et bonne ambiance. Rejoins la team !';
 
 const STAFF_BASE = ['ManageMessages', 'ManageThreads', 'ModerateMembers', 'MoveMembers', 'MuteMembers'];
 const MODO = [...STAFF_BASE, 'ViewAuditLog', 'KickMembers', 'ManageNicknames'];
@@ -11,13 +11,8 @@ export const ROLES = [
   { sep: true, name: '━━━━━━ 『 FONDATION 』 ━━━━━━' },
   { key: 'owner',  name: '👑・Fondateur',          color: 0xf1c40f, hoist: true, perms: ['Administrator'] },
   { key: 'cofond', name: '💎・Co-Fondateur',       color: 0x00d2ff, hoist: true, perms: ['Administrator'] },
-  { sep: true, name: '━━━━━━ 『 DIRECTION 』 ━━━━━━' },
-  { key: 'dg',     name: '🥇・Directeur Général',  color: 0xffb300, hoist: true, staff: true, perms: ['Administrator'] },
-  { key: 'dir',    name: '🥈・Directeur',          color: 0xc0c0c0, hoist: true, staff: true, perms: DIREC_P },
-  { key: 'sdir',   name: '🥉・Sous-Directeur',     color: 0xcd7f32, hoist: true, staff: true, perms: DIREC_P },
-  { key: 'gerant', name: '🌟・Gérant',             color: 0xff9f43, hoist: true, staff: true, perms: ADMIN_P },
-  { key: 'gadj',   name: '✨・Gérant Adjoint',     color: 0xfeca57, hoist: true, staff: true, perms: ADMIN_P },
   { sep: true, name: '━━━━━━━ 『 STAFF 』 ━━━━━━━' },
+  { key: 'dir',    name: '🥈・Directeur',          color: 0xc0c0c0, hoist: true, staff: true, perms: DIREC_P },
   { key: 'sadmin', name: '🛡️・Super Admin',        color: 0xee5253, hoist: true, staff: true, perms: ADMIN_P },
   { key: 'admin',  name: '👮・Administrateur',     color: 0xff6b6b, hoist: true, staff: true, perms: ADMIN_P },
   { key: 'smodo',  name: '🔰・Super Modérateur',   color: 0x2e86de, hoist: true, staff: true, perms: [...MODO, 'BanMembers'] },
@@ -58,15 +53,14 @@ export const ROLES = [
 // Salon : type text|voice|news|forum, access :
 //   'readonly' | 'anim' | 'team' | 'staff' | ['clé', ...] (caché sauf ces rôles) | { connect: ['clé', ...] } (visible, verrouillé sauf ces rôles)
 const FONDATION = ['cofond'];
-const DIRECTION = [...FONDATION, 'dg', 'dir', 'sdir'];
-const GERANCE = [...DIRECTION, 'gerant', 'gadj'];
-const ADMIN = [...GERANCE, 'sadmin', 'admin'];
+const DIRECTION = [...FONDATION, 'dir'];
+const ADMIN = [...DIRECTION, 'sadmin', 'admin'];
 const STAFF = [...ADMIN, 'smodo', 'modo', 'mtest'];
 const lock = (...keys) => ({ connect: keys.flat() });
 const SEP = { name: '-------', type: 'voice', access: lock() };
 export const CATEGORIES = [
   { name: null, bars: false, channels: [
-    { name: '#SunsetClub 🌴', type: 'voice', access: lock() },
+    { name: '#PalmSociety 🌴', type: 'voice', access: lock() },
   ]},
   { name: '📊 SERVER STATS 📊', bars: false, channels: [
     { key: 'statMembers', name: '『🌟』Membres : {members}', type: 'voice', access: lock() },
@@ -82,10 +76,7 @@ export const CATEGORIES = [
   { name: '[•] GESTION SERVEUR [•]', bars: false, gate: true, channels: [
     { name: '『👑』FONDATION 👑 (ᶻᶻᶻ)',          type: 'voice', access: lock(FONDATION) },
     { name: '『👑』FONDATION 💎👑',              type: 'voice', access: lock(FONDATION) },
-    { name: '『🥇』Bureau du Directeur Général', type: 'voice', access: lock(DIRECTION) },
-    { name: '『🥈』Bureau de la Direction',      type: 'voice', access: lock(DIRECTION) },
-    { name: '『🥉』Bureau Sous-Direction',       type: 'voice', access: lock(DIRECTION) },
-    { name: '『🌟』Bureau des Gérants',          type: 'voice', access: lock(GERANCE) },
+    { name: '『🥈』Bureau du Directeur',        type: 'voice', access: lock(DIRECTION) },
     { name: '『👮』Bureau des Admins',           type: 'voice', access: lock(ADMIN) },
     { name: '『🔰』Bureau des Modérateurs',      type: 'voice', access: lock(STAFF) },
     { name: '『🚨』Bureau Urgence',              type: 'voice', access: lock(STAFF) },
