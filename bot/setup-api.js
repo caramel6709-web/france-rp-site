@@ -145,7 +145,7 @@ const byPart = (p) => allChannels.find((c) => c.name.includes(p))?.id;
 await api('PUT', `${G}/onboarding`, {
   enabled: true, mode: 0,
   default_channel_ids: [...textIds(['welcome', 'rules', 'annonces', 'roles', 'general']),
-    ...['présentations', 'médias', 'memes', 'commandes', 'gta-discussion', 'compteur', 'question'].map(byPart)].filter(Boolean),
+    ...['médias', 'commandes', 'jeux', 'gta-discussion', 'spoilers', 'question', 'demande-aide'].map(byPart)].filter(Boolean),
   prompts: [
     { id: snow(), type: 0, title: 'À quoi tu joues ?', single_select: false, required: false, in_onboarding: true, options: opt('jeux') },
     { id: snow(), type: 0, title: 'Sur quelle plateforme ?', single_select: false, required: false, in_onboarding: true, options: opt('plateforme') },
