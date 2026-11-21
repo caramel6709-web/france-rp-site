@@ -53,7 +53,8 @@ export const ROLES = [
   { key: 'nGta',   name: '📰・Notif GTA 6',        color: 0x99aab5, self: 'notifs' },
 ];
 
-// Catégorie : name (null = salons hors catégorie), bars (╭ ｜ ╰ devant les salons, défaut oui), access
+// Catégorie : name (null = salons hors catégorie), bars (╭ ｜ ╰ devant les salons, défaut oui), access,
+//   gate (salons visibles seulement après acceptation du règlement = rôle ✅・Membre ; public: true pour une exception)
 // Salon : type text|voice|news|forum, access :
 //   'readonly' | 'anim' | 'team' | 'staff' | ['clé', ...] (caché sauf ces rôles) | { connect: ['clé', ...] } (visible, verrouillé sauf ces rôles)
 const FONDATION = ['cofond'];
@@ -78,7 +79,7 @@ export const CATEGORIES = [
     { key: 'roles',   name: '『🔔』notifications', access: 'readonly' },
     { name: '『🚀』invitations',   access: 'readonly' },
   ]},
-  { name: '[•] GESTION SERVEUR [•]', bars: false, channels: [
+  { name: '[•] GESTION SERVEUR [•]', bars: false, gate: true, channels: [
     { name: '『👑』FONDATION 👑 (ᶻᶻᶻ)',          type: 'voice', access: lock(FONDATION) },
     { name: '『👑』FONDATION 💎👑',              type: 'voice', access: lock(FONDATION) },
     { name: '『🥇』Bureau du Directeur Général', type: 'voice', access: lock(DIRECTION) },
@@ -92,12 +93,12 @@ export const CATEGORIES = [
     { name: '『💡』Bureau du Staff',             type: 'voice', access: lock(STAFF) },
     { name: '『⬆️』En Attente de Move ⬆️',       type: 'voice' },
   ]},
-  { name: '[•] Informations [•]', channels: [
-    { key: 'annonces', name: '『📯』annonces', access: 'readonly', type: 'news' },
-    { name: '『🔗』liens-utiles',        access: 'readonly' },
-    { name: '『❗』infos',               access: 'readonly' },
-    { name: '『🥇』classements',         access: 'readonly' },
-    { name: '『🆘』report-discord',      access: 'readonly' },
+  { name: '[•] Informations [•]', gate: true, channels: [
+    { key: 'annonces', name: '『📯』annonces', public: true, access: 'readonly', type: 'news' },
+    { name: '『🔗』liens-utiles', public: true,        access: 'readonly' },
+    { name: '『❗』infos', public: true,               access: 'readonly' },
+    { name: '『🥇』classements', public: true,         access: 'readonly' },
+    { name: '『🆘』report-discord', public: true,      access: 'readonly' },
     { name: '『🛠️』updates',             access: 'readonly' },
     { name: '『🎁』giveaways',           access: 'anim' },
     { name: '『🚀』boosts',              access: 'readonly' },
@@ -111,7 +112,7 @@ export const CATEGORIES = [
     { name: '『📶』communication-pub',   access: 'readonly' },
     { name: '『🔷』recrutement-staffs',  access: 'readonly' },
   ]},
-  { name: '[•] Social [•]', channels: [
+  { name: '[•] Social [•]', gate: true, channels: [
     { key: 'general', name: '『💬』discussion' },
     { name: '『🎁』invitations-info-🎁', access: 'readonly' },
     { name: '『🤖』commandes' },
@@ -119,7 +120,7 @@ export const CATEGORIES = [
     { name: '『🌍』jeux' },
     { name: '『📸』médias' },
   ]},
-  { name: '[•] GTA 6 [•]', channels: [
+  { name: '[•] GTA 6 [•]', gate: true, channels: [
     { name: '『🗞️』gta6-news', access: 'readonly', type: 'news' },
     { name: '『🧵』spoilers' },
     { name: '『🚘』gta-discussion' },
@@ -132,18 +133,18 @@ export const CATEGORIES = [
     { name: '『🎈』reports-joueurs' },
     { name: '『🎈』reports-staff' },
   ]},
-  { name: '❓ | Aides', channels: [
+  { name: '❓ | Aides', gate: true, channels: [
     { name: '『❓』Aide 1', type: 'voice', access: lock(STAFF) },
     { name: '『❓』Aide 2', type: 'voice', access: lock(STAFF) },
     { name: '『❓』Aide 3', type: 'voice', access: lock(STAFF) },
     { name: "『❓』En attente d'aide", type: 'voice' },
   ]},
-  { name: '[•] Événements [•]', channels: [
+  { name: '[•] Événements [•]', gate: true, channels: [
     { name: '『💥』projets-events' },
     { name: '『🏛️』En attente', type: 'voice' },
     { name: '『🏛️』Bureau des Événements', type: 'voice', access: lock(STAFF, 'anim') },
   ]},
-  { name: '[•] Recrutements [•]', channels: [
+  { name: '[•] Recrutements [•]', gate: true, channels: [
     { name: '『📚』candidature-staff' },
     { name: '『🎉』candidature-animateur' },
     { name: '『🎨』candidature-graphiste' },
@@ -151,7 +152,7 @@ export const CATEGORIES = [
     { name: '『🤝』candidature-partenariat' },
     { name: '『⭐』candidature-team' },
   ]},
-  { name: '[•] Vocaux [•]', channels: [
+  { name: '[•] Vocaux [•]', gate: true, channels: [
     { name: '『🔊』Général 1', type: 'voice' },
     { name: '『🔊』Général 2', type: 'voice' },
     { name: '『🏖️』GTA Session', type: 'voice' },

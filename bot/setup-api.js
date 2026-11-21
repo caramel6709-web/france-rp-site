@@ -73,19 +73,45 @@ const overwrites = (access) => {
   })[access] ?? [];
 };
 
+// Fusionne les réglages d'un même rôle : en cas de conflit, l'interdiction l'emporte
+const merge = (list) => Object.values(list.reduce((acc, o) => {
+  const cur = acc[o.id] ?? { id: o.id, type: o.type, allow: 0n, deny: 0n };
+  cur.allow |= BigInt(o.allow ?? 0); cur.deny |= BigInt(o.deny ?? 0);
+  acc[o.id] = cur; return acc;
+}, {})).map((o) => ({ ...o, allow: (o.allow & ~o.deny).toString(), deny: o.deny.toString() }));
+
+// Vérification : salon visible seulement par ✅・Membre et le staff
+const VIEW = P.ViewChannel | P.Connect;
+const gate = (list) => {
+  const out = list.map((o) => ({ ...o }));
+  let ev = out.find((o) => o.id === GUILD_ID);
+  if (!ev) out.push(ev = { id: GUILD_ID, type: 0 });
+  ev.allow = (BigInt(ev.allow ?? 0) & ~P.ViewChannel).toString();
+  ev.deny = (BigInt(ev.deny ?? 0) | P.ViewChannel).toString();
+  for (const r of [roles.member, ...staff]) {
+    const o = out.find((x) => x.id === r.id);
+    const add = r === roles.member && out.some((x) => x.id === GUILD_ID && BigInt(x.deny ?? 0) & P.Connect) ? P.ViewChannel : VIEW;
+    if (o) o.allow = (BigInt(o.allow ?? 0) | add).toString(); else out.push({ id: r.id, type: 0, allow: add.toString() });
+  }
+  return out;
+};
+
 // Salons (« news » et « forum » nécessitent le mode Communauté : convertis / créés après)
 const counts = await api('GET', `${G}?with_counts=true`);
 const fill = (n) => n.replace('{members}', counts.approximate_member_count ?? 1).replace('{boosts}', counts.premium_subscription_count ?? 0);
 const channels = {}, later = [];
 for (const cat of CATEGORIES) {
-  const category = cat.name && await api('POST', `${G}/channels`, { name: cat.name, type: 4, permission_overwrites: overwrites(cat.access) });
+  const category = cat.name && await api('POST', `${G}/channels`, { name: cat.name, type: 4,
+    permission_overwrites: cat.gate ? gate(overwrites(cat.access)) : overwrites(cat.access) });
   for (const [idx, ch] of cat.channels.entries()) {
     const type = ch.type ?? 'text';
     const branch = cat.bars === false ? '' : idx === 0 ? '╭' : idx === cat.channels.length - 1 ? '╰' : '｜';
     const own = ch.access && (Array.isArray(ch.access) || ch.access.connect);
+    let perms = own ? overwrites(ch.access) : ch.access ? merge([...overwrites(cat.access), ...overwrites(ch.access)]) : overwrites(cat.access);
+    if (cat.gate && !ch.public) perms = gate(perms);
     const spec = {
       name: branch + fill(ch.name), ...(category && { parent_id: category.id }), ...(ch.topic && { topic: ch.topic }),
-      permission_overwrites: own ? overwrites(ch.access) : ch.access ? [...overwrites(cat.access), ...overwrites(ch.access)] : overwrites(cat.access),
+      permission_overwrites: perms,
       ...(type === 'text' && { rate_limit_per_user: cat.access || ch.access ? 0 : 2 }),
       ...(ch.limit && { user_limit: ch.limit }),
     };
@@ -144,9 +170,11 @@ const allChannels = await api('GET', `${G}/channels`);
 const byPart = (p) => allChannels.find((c) => c.name.includes(p))?.id;
 await api('PUT', `${G}/onboarding`, {
   enabled: true, mode: 0,
-  default_channel_ids: [...textIds(['welcome', 'rules', 'annonces', 'roles', 'general']),
-    ...['médias', 'commandes', 'jeux', 'gta-discussion', 'spoilers', 'question', 'bug-reports'].map(byPart)].filter(Boolean),
+  default_channel_ids: [...textIds(['welcome', 'rules', 'roles', 'annonces']),
+    ...['informations', 'invitations', 'liens-utiles', 'infos', 'question', 'demande-unban', 'bug-reports', 'reports-joueurs', 'reports-staff'].map(byPart)].filter(Boolean),
   prompts: [
+    { id: snow(), type: 0, title: 'Règlement', single_select: true, required: true, in_onboarding: true, options: [
+      { id: snow(), title: "J'ai lu et j'accepte le règlement", description: 'Débloque tout le serveur', emoji_name: '✅', role_ids: [roles.member.id], channel_ids: [] }] },
     { id: snow(), type: 0, title: 'À quoi tu joues ?', single_select: false, required: false, in_onboarding: true, options: opt('jeux') },
     { id: snow(), type: 0, title: 'Sur quelle plateforme ?', single_select: false, required: false, in_onboarding: true, options: opt('plateforme') },
     { id: snow(), type: 0, title: 'Quelles notifications veux-tu ?', single_select: false, required: false, in_onboarding: true, options: opt('notifs') },
