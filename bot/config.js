@@ -54,14 +54,14 @@ const DIRECTION = ['direc'];
 const ADMIN = [...DIRECTION, 'admin'];
 const STAFF = [...ADMIN, 'modo', 'support', 'test'];
 export const CATEGORIES = [
-  { name: '『🏠』・ACCUEIL', channels: [
+  { name: '[•] Accueil [•]', channels: [
     { key: 'welcome',  name: '『🌅』bienvenue',  access: 'readonly' },
     { key: 'rules',    name: '『📖』règlement',  access: 'readonly' },
     { key: 'roles',    name: '『🎭』rôles',      access: 'readonly' },
     { name: '『🌐』réseaux',    access: 'readonly' },
     { name: '『💜』boosts',     access: 'readonly' },
   ]},
-  { name: '『📌』・INFORMATIONS', channels: [
+  { name: '[•] Informations [•]', channels: [
     { key: 'annonces', name: '『📣』annonces', access: 'readonly', type: 'news' },
     { name: '『🛠️』mises-à-jour', access: 'readonly' },
     { name: '『🎪』événements',  access: 'anim' },
@@ -70,7 +70,7 @@ export const CATEGORIES = [
     { name: '『🤝』partenariats', access: 'readonly' },
     { name: '『📋』recrutement', access: 'readonly' },
   ]},
-  { name: '『🌍』・SOCIAL', channels: [
+  { name: '[•] Social [•]', channels: [
     { key: 'general', name: '『💬』discussion' },
     { name: '『🙋』présentations', topic: 'Présente-toi : pseudo, âge, jeux préférés…' },
     { name: '『🖼️』médias' },
@@ -79,14 +79,14 @@ export const CATEGORIES = [
     { name: '『🎧』musique' },
     { name: '『🤖』commandes' },
   ]},
-  { name: '『🎈』・DÉTENTE', channels: [
+  { name: '[•] Détente [•]', channels: [
     { name: '『🔢』compteur', topic: 'Comptez de 1 en 1, chacun son tour. Une erreur = retour à 1 !' },
     { name: '『🔤』mot-suivant', topic: 'Un mot qui commence par la dernière lettre du mot précédent.' },
     { name: '『🏆』best-of', topic: 'Les meilleurs moments et phrases cultes du serveur.' },
     { name: '『⌨️』ton-setup', topic: 'Montre ton setup !' },
     { name: '『🐶』animaux' },
   ]},
-  { name: '『🌴』・GTA 6', channels: [
+  { name: '[•] GTA 6 [•]', channels: [
     { name: '『🗞️』gta6-news', access: 'readonly', type: 'news' },
     { name: '『🎬』trailers' },
     { name: '『🧠』théories' },
@@ -94,18 +94,18 @@ export const CATEGORIES = [
     { name: '『📷』screens-clips' },
     { name: '『👥』cherche-crew' },
   ]},
-  { name: '『🕹️』・GAMING', channels: [
+  { name: '[•] Gaming [•]', channels: [
     { name: '『🎯』jeux-du-moment' },
     { name: '『🎥』clips' },
     { name: '『🔍』cherche-joueurs' },
   ]},
-  { name: '『🎫』・SUPPORT', channels: [
+  { name: '[•] Support [•]', channels: [
     { name: '『❓』question' },
     { name: '『🚨』signalements' },
     { name: '『💡』suggestions', type: 'forum', topic: 'Une idée pour le serveur ? Crée un post !' },
     { name: '『🐞』bug-reports' },
   ]},
-  { name: '『🔊』・VOCAUX', channels: [
+  { name: '[•] Vocaux [•]', channels: [
     { name: '『🔈』Général 1', type: 'voice' },
     { name: '『🔉』Général 2', type: 'voice' },
     { name: '『🏖️』GTA Session', type: 'voice' },
@@ -114,12 +114,12 @@ export const CATEGORIES = [
     { name: '『🔒』Privé', type: 'voice', access: 'locked' },
     { key: 'afk', name: '『💤』AFK', type: 'voice' },
   ]},
-  { name: '『⭐』・ESPACE TEAM', access: 'team', channels: [
+  { name: '[•] Espace Team [•]', access: 'team', channels: [
     { name: '『🌟』team-chat' },
     { name: '『📅』planning' },
     { name: '『✨』Team', type: 'voice' },
   ]},
-  { name: '『🏢』・BUREAUX', access: 'staff', channels: [
+  { name: '[•] Bureaux [•]', access: 'staff', channels: [
     { name: '『🏛️』bureau-direction',      access: DIRECTION },
     { name: '『🛡️』bureau-administration', access: ADMIN },
     { name: '『🔨』bureau-modération',     access: STAFF },
@@ -131,7 +131,7 @@ export const CATEGORIES = [
     { name: '『🗣️』Réunion', type: 'voice', access: STAFF },
     { name: '『🏦』Bureau Direction', type: 'voice', access: DIRECTION },
   ]},
-  { name: '『🔐』・GESTION', access: 'staff', channels: [
+  { name: '[•] Gestion [•]', access: 'staff', channels: [
     { name: '『☕』staff-chat' },
     { name: '『📢』annonces-staff', access: 'readonly' },
     { key: 'logs', name: '『📜』logs' },
