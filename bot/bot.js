@@ -243,7 +243,7 @@ client.on('interactionCreate', async (i) => {
       case 'annonce': {
         const ch = i.guild.channels.cache.find((c) => c.type === ChannelType.GuildAnnouncement && c.name.includes('annonces'))
           ?? findChannel(i.guild, 'annonces');
-        const notif = i.options.getBoolean('notifier') ? findRole(i.guild, '🔔・Notif Annonces') : null;
+        const notif = i.options.getBoolean('notifier') ? findRole(i.guild, 'Notification Annonces 📢') : null;
         await ch.send({ content: notif ? `${notif}` : undefined,
           embeds: [embed(i.options.getString('titre'), i.options.getString('message').replaceAll('\\n', '\n'))
             .setFooter({ text: `Annonce de ${i.member.displayName}` }).setTimestamp()] });

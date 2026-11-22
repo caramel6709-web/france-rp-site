@@ -6,54 +6,72 @@ const STAFF_BASE = ['ManageMessages', 'ManageThreads', 'ModerateMembers', 'MoveM
 const MODO = [...STAFF_BASE, 'ViewAuditLog', 'KickMembers', 'ManageNicknames'];
 const ADMIN_P = [...MODO, 'BanMembers', 'ManageChannels', 'ManageEvents', 'MentionEveryone', 'DeafenMembers'];
 const DIREC_P = [...ADMIN_P, 'ManageGuild', 'ManageRoles', 'ManageWebhooks', 'ManageGuildExpressions'];
-// sep : rôle séparateur · staff : accès aux salons staff · self : choisi à l'accueil · rp : service RP (donné après recrutement)
+// Organisation des rôles :
+//  - rôles de TITRE « emoji • Nom Soleria emoji » : affichage + accès aux salons (staff: true), sans permission
+//  - rôles de PERMISSION (Perm Globe, P4 → P1) : portent les vrais droits, à cumuler avec le titre
+//  - séparateurs vides (sep) ; label sert seulement au message des rôles
+// self : proposé à l'accueil · mention : mentionnable par tous
+const BLANK = 'ㅤ';
 export const ROLES = [
-  { sep: true, name: '━━━━━━ 『 FONDATION 』 ━━━━━━' },
-  { key: 'owner',  name: '👑・Fondateur',          color: 0xf1c40f, hoist: true, perms: ['Administrator'] },
-  { sep: true, name: '━━━━━━━ 『 STAFF 』 ━━━━━━━' },
-  { key: 'dir',    name: '🥈・Directeur',          color: 0xc0c0c0, hoist: true, staff: true, perms: DIREC_P },
-  { key: 'sadmin', name: '🛡️・Super Admin',        color: 0xee5253, hoist: true, staff: true, perms: ADMIN_P },
-  { key: 'admin',  name: '👮・Administrateur',     color: 0xff6b6b, hoist: true, staff: true, perms: ADMIN_P },
-  { key: 'smodo',  name: '🔰・Super Modérateur',   color: 0x2e86de, hoist: true, staff: true, perms: [...MODO, 'BanMembers'] },
-  { key: 'modo',   name: '🔨・Modérateur',         color: 0x54a0ff, hoist: true, staff: true, perms: MODO },
-  { key: 'mtest',  name: '🧪・Modérateur Test',    color: 0x48dbfb, hoist: true, staff: true, perms: STAFF_BASE },
-  { key: 'wl',     name: '📋・Staff Whitelist',    color: 0x1dd1a1, hoist: true, staff: true, perms: ['ManageNicknames', 'MoveMembers'] },
-  { sep: true, name: '━━━━━━ 『 ÉQUIPES 』 ━━━━━━' },
-  { key: 'anim',   name: '🎉・Animateur',          color: 0xff6b9d, hoist: true, perms: ['ManageEvents', 'CreateEvents', 'MoveMembers', 'PrioritySpeaker'] },
-  { key: 'dev',    name: '💻・Développeur',        color: 0x00cec9, hoist: true, perms: ['ManageWebhooks'] },
-  { key: 'graph',  name: '🎨・Graphiste',          color: 0xfd79a8, perms: ['CreateGuildExpressions'] },
-  { key: 'recrut', name: '📝・Recruteur',          color: 0xa29bfe, perms: [] },
-  { sep: true, name: '━━━━━━ 『 SERVICES RP 』 ━━━━━━' },
-  { key: 'maire',  name: '🏛️・Mairie',             color: 0xf8c291, rp: true },
-  { key: 'pref',   name: '🏢・Préfecture',         color: 0xe58e26, rp: true },
-  { key: 'police', name: '🚓・Police Nationale',   color: 0x1e3799, rp: true },
-  { key: 'gend',   name: '🚔・Gendarmerie',        color: 0x0c2461, rp: true },
-  { key: 'samu',   name: '🚑・SAMU',               color: 0xeb2f06, rp: true },
-  { key: 'pomp',   name: '🚒・Pompiers',           color: 0xb71540, rp: true },
-  { key: 'justice', name: '⚖️・Justice',           color: 0x6a89cc, rp: true },
-  { key: 'bus',    name: '🚌・Transports',         color: 0xfad390, rp: true },
-  { key: 'depan',  name: '🔧・Dépanneur',          color: 0x82ccdd, rp: true },
-  { key: 'tv',     name: '🎥・Journaliste',        color: 0xb8e994, rp: true },
-  { key: 'entre',  name: '💼・Entreprise',         color: 0x78e08f, rp: true },
-  { key: 'gang',   name: '💸・Gang',               color: 0x4b4b4b, rp: true },
-  { sep: true, name: '━━━━━ 『 COMMUNAUTÉ 』 ━━━━━' },
-  { key: 'partner', name: '🤝・Partenaire',        color: 0x6c5ce7, hoist: true, perms: [] },
-  { key: 'vip',    name: '💎・VIP',                color: 0x9b59b6, hoist: true, perms: ['UseExternalStickers'] },
-  { key: 'ancien', name: '🏅・Ancien',             color: 0xb2bec3, perms: [] },
-  { key: 'actif',  name: '🔥・Membre Actif',       color: 0xff7f50, perms: [] },
-  { key: 'member', name: '✅・Membre',             color: 0x95a5a6, perms: [] },
-  { sep: true, name: '━━━━━━ 『 PROFIL 』 ━━━━━━' },
-  { key: 'pc',     name: '🖥️・PC',                 color: 0x636e72, self: 'plateforme' },
-  { key: 'mobile', name: '📱・Mobile',             color: 0xb2bec3, self: 'plateforme' },
-  { key: 'tab',    name: '📲・Tablette',           color: 0xb2bec3, self: 'plateforme' },
-  { key: 'cons',   name: '🎮・Console',            color: 0x0652dd, self: 'plateforme' },
-  { sep: true, name: '━━━━ 『 NOTIFICATIONS 』 ━━━━' },
-  { key: 'nAnn',   name: '🔔・Notif Annonces',     color: 0x99aab5, self: 'notifs' },
-  { key: 'nEvent', name: '🎊・Notif Events',       color: 0x99aab5, self: 'notifs' },
-  { key: 'nGive',  name: '🎁・Notif Giveaways',    color: 0x99aab5, self: 'notifs' },
-  { key: 'nSond',  name: '📊・Notif Sondages',     color: 0x99aab5, self: 'notifs' },
-  { key: 'nRecrut', name: '📢・Notif Recrutements', color: 0x99aab5, self: 'notifs' },
-  { key: 'nUpd',   name: '🛠️・Notif Updates',      color: 0x99aab5, self: 'notifs' },
+  { sep: true, name: BLANK, label: 'Fondation' },
+  { key: 'owner',   name: '👑 • Fondateur Soleria 👑',           color: 0xf1c40f, hoist: true, staff: true },
+  { key: 'globe',   name: '🌐 • Perm Globe 🛡️',                  color: 0xffd6e7, perms: ['Administrator'] },
+  { sep: true, name: BLANK, label: 'Direction' },
+  { key: 'dir',     name: '🥈 • Directeur Soleria 🏆',            color: 0xc0c0c0, hoist: true, staff: true },
+  { key: 'afond',   name: '📁 • Assistant des Fondateurs ⭐',      color: 0xf6e58d, hoist: true, staff: true },
+  { sep: true, name: BLANK, label: 'Permissions' },
+  { key: 'p4',      name: 'P4', color: 0xbdc3c7, perms: DIREC_P },
+  { key: 'p3',      name: 'P3', color: 0xbdc3c7, perms: ADMIN_P },
+  { key: 'p2',      name: 'P2', color: 0xbdc3c7, perms: [...MODO, 'BanMembers'] },
+  { key: 'p1',      name: 'P1', color: 0xbdc3c7, perms: STAFF_BASE },
+  { sep: true, name: BLANK, label: 'Administration' },
+  { key: 'sadmin',  name: '⭐ • Super Administrateur Soleria',     color: 0xff3838, hoist: true, staff: true },
+  { key: 'chefsec', name: '🛡️ • Chef Sécurité Soleria RP 🌀',     color: 0x3742fa, hoist: true, staff: true },
+  { key: 'admin',   name: '🔥 • Administrateur Soleria',          color: 0xff4d4d, hoist: true, staff: true },
+  { key: 'atest',   name: '🧪 • Administrateur Test Soleria',     color: 0xff7675, hoist: true, staff: true },
+  { key: 'respanim', name: '🎪 • Responsable Animation Soleria RP', color: 0xe84393, hoist: true, staff: true },
+  { key: 'respev',  name: '🎊 • Responsable Événements RP',        color: 0xfd79a8, hoist: true, staff: true },
+  { key: 'urgence', name: '⚠️ • URGENCE • SÉCURITÉ ⚠️',            color: 0xff0000, mention: true },
+  { sep: true, name: BLANK, label: 'Modération' },
+  { key: 'smodo',   name: '💜 • Super Modérateur Soleria',        color: 0x6c5ce7, hoist: true, staff: true },
+  { key: 'mconf',   name: '🔰 • Modérateur Confirmé Soleria',     color: 0x4834d4, hoist: true, staff: true },
+  { key: 'modo',    name: '🔨 • Modérateur Soleria',              color: 0x54a0ff, hoist: true, staff: true },
+  { key: 'mtest',   name: '🧪 • Modérateur Test Soleria',         color: 0x48dbfb, hoist: true, staff: true },
+  { key: 'wl',      name: '📋 • Staff WL Soleria ✅',              color: 0x1dd1a1, hoist: true, staff: true },
+  { key: 'evstaff', name: '🎟️ • Staff Événement Soleria',        color: 0x10ac84, staff: true },
+  { key: 'staff',   name: '☀️ • Staff de Soleria RolePlay 📋',    color: 0xffffff, staff: true },
+  { sep: true, name: BLANK, label: 'Rôles RP' },
+  { key: 'maire',   name: '🏛️ • Maire de Soleria 🏛️',            color: 0x74b9ff, hoist: true },
+  { key: 'pref',    name: '🏢 • Préfet de Soleria',               color: 0x55efc4, hoist: true },
+  { key: 'anim',    name: '🎉 • Animateur Soleria 🎊',            color: 0x0fbcf9, hoist: true, perms: ['ManageEvents', 'CreateEvents', 'MoveMembers', 'PrioritySpeaker'] },
+  { key: 'dev',     name: '💻 • Développeur Soleria',             color: 0x00cec9, hoist: true },
+  { key: 'police',  name: '🚓 • Police Nationale',                color: 0x1e3799 },
+  { key: 'gend',    name: '🚔 • Gendarmerie',                     color: 0x0c2461 },
+  { key: 'samu',    name: '🚑 • SAMU',                            color: 0xeb2f06 },
+  { key: 'pomp',    name: '🚒 • Pompiers',                        color: 0xb71540 },
+  { key: 'justice', name: '⚖️ • Justice',                         color: 0x6a89cc },
+  { key: 'bus',     name: '🚌 • Transports',                      color: 0xfad390 },
+  { key: 'depan',   name: '🔧 • Dépanneur',                       color: 0x82ccdd },
+  { key: 'tv',      name: '🎥 • Soleria TV',                      color: 0xb8e994 },
+  { key: 'entre',   name: '💼 • Entreprise',                      color: 0x78e08f },
+  { key: 'gang',    name: '💸 • Gang',                            color: 0x4b4b4b },
+  { sep: true, name: BLANK, label: 'Communauté' },
+  { key: 'booster', name: '🚀 • Méga Booster ☀️',                 color: 0xff6b81, hoist: true },
+  { key: 'comm',    name: '📣 • Communication Soleria',           color: 0x6ab04c },
+  { key: 'inviteur', name: '📨 • Super Inviteur',                 color: 0x8e44ad },
+  { key: 'vip',     name: '💎 • VIP',                             color: 0x9b59b6, hoist: true },
+  { key: 'partner', name: '🤝 • Partenaire Soleria',              color: 0x6c5ce7, hoist: true },
+  { key: 'bvn',     name: '☀️☀️☀️ Bienvenue sur Soleria RolePlay ☀️☀️☀️', color: 0xe17055 },
+  { key: 'ancien',  name: '✨ • Ancien Staff Retraité',            color: 0xfdcb6e },
+  { sep: true, name: BLANK, label: 'Membres' },
+  { key: 'member',  name: '✅ • Membre',                          color: 0x6ab04c },
+  { sep: true, name: BLANK, label: 'Notifications' },
+  { key: 'nAnn',    name: 'Notification Annonces 📢',             color: 0xf39c12, self: 'notifs' },
+  { key: 'nEvent',  name: 'Notification Events 📢',               color: 0x3498db, self: 'notifs' },
+  { key: 'nSond',   name: 'Notification Sondages 📢',             color: 0xe74c3c, self: 'notifs' },
+  { key: 'nUpd',    name: 'Notification Spoilers-Updates 📢',     color: 0xe67e22, self: 'notifs' },
+  { key: 'nRecrut', name: 'Notification Recrutements RP 📢',      color: 0x2ecc71, self: 'notifs' },
+  { key: 'nGive',   name: 'Notification Giveaways 📢',            color: 0x9b59b6, self: 'notifs' },
 ];
 
 // Catégorie : name (null = hors catégorie), bars (╭ ｜ ╰, défaut oui), access, gate (visible après acceptation du règlement)
@@ -61,8 +79,8 @@ export const ROLES = [
 //   'readonly' | 'anim' | 'staff' | ['clé', ...] (caché sauf ces rôles) | { connect: [...] } (visible, verrouillé sauf ces rôles)
 const FONDATION = ['owner'];
 const DIRECTION = [...FONDATION, 'dir'];
-const ADMIN = [...DIRECTION, 'sadmin', 'admin'];
-const STAFF = [...ADMIN, 'smodo', 'modo', 'mtest', 'wl'];
+const ADMIN = [...DIRECTION, 'afond', 'sadmin', 'chefsec', 'admin', 'atest'];
+const STAFF = [...ADMIN, 'respanim', 'respev', 'smodo', 'mconf', 'modo', 'mtest', 'wl', 'evstaff', 'staff'];
 const lock = (...keys) => ({ connect: keys.flat() });
 const SEP = { name: '-------', type: 'voice', access: lock() };
 export const CATEGORIES = [

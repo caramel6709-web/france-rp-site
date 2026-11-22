@@ -46,7 +46,7 @@ const roles = {};
 const created = [];
 for (const r of ROLES) {
   const role = await api('POST', `${G}/roles`, {
-    name: r.name, color: r.sep ? 0 : r.color, hoist: !!r.hoist, mentionable: !!r.self && r.self === 'jeux',
+    name: r.name, color: r.sep ? 0 : r.color, hoist: !!r.hoist, mentionable: !!r.mention,
     permissions: bits(...(r.perms ?? [])),
   });
   if (r.key) roles[r.key] = role;
@@ -151,10 +151,10 @@ await send('welcome', { title: `Bienvenue sur ${SERVER_NAME} !`, color: 0xff6b9d
   `${e('partyblob', '🎉')} Le serveur **RolePlay** de Soleria : rejoins un service, vis ton RP et suis toute l'actu du jeu.\n\n` +
   `『📄』・Lis le ${ch('rules')}\n『🎭』・Choisis tes rôles via **Salons & rôles** (en haut de la liste)\n` +
   `『💬』・Viens parler dans ${ch('general')}\n\nBon séjour ! ${e('blobcool', '😎')}` });
-const groups = []; for (const x of ROLES) { if (x.sep) groups.push({ title: x.name.match(/『 (.+) 』/)[1], list: [] }); else groups.at(-1).list.push(x); }
+const groups = []; for (const x of ROLES) { if (x.sep) groups.push({ title: x.label, list: [] }); else groups.at(-1).list.push(x); }
 await send('roles', { title: '『🔔』・Rôles & notifications', color: 0x5865f2, description: groups.map((g) =>
-  `**[•] ${g.title[0] + g.title.slice(1).toLowerCase()} [•]**\n${g.list.map((x) => r(x.key)).join(' ・ ')}`).join('\n\n') +
-  `\n\n➡️ Les rôles **Profil** et **Notifications** se choisissent dans **Salons & rôles** (en haut de la liste des salons).` });
+  `**[•] ${g.title} [•]**\n${g.list.map((x) => r(x.key)).join('\n')}`).join('\n\n') +
+  `\n\n➡️ Les rôles **Notifications** se choisissent dans **Salons & rôles** (en haut de la liste des salons).` });
 await send('annonces', { title: '『🎉』・Ouverture !', color: 0x2ecc71,
   description: `${SERVER_NAME} est ouvert ${e('PepoDance', '🥳')} Invite tes potes !` });
 
@@ -162,7 +162,8 @@ await send('annonces', { title: '『🎉』・Ouverture !', color: 0x2ecc71,
 let seq = 0n;
 const snow = () => String(((BigInt(Date.now()) - 1420070400000n) << 22n) + seq++);
 const opt = (group) => ROLES.filter((x) => x.self === group).map((x) => ({
-  id: snow(), title: x.name.split('・')[1], emoji_name: [...x.name.split('・')[0]].filter((c) => c !== '️').join(''), role_ids: [roles[x.key].id], channel_ids: [],
+  id: snow(), title: x.name.replace(/[^\p{L}\p{N} '-]/gu, '').replace(/\s+/g, ' ').trim(),
+  emoji_name: '📢', role_ids: [roles[x.key].id], channel_ids: [],
 }));
 const textIds = (names) => names.map((k) => channels[k]?.id).filter(Boolean);
 const allChannels = await api('GET', `${G}/channels`);
@@ -174,7 +175,6 @@ await api('PUT', `${G}/onboarding`, {
   prompts: [
     { id: snow(), type: 0, title: 'Règlement', single_select: true, required: true, in_onboarding: true, options: [
       { id: snow(), title: "J'ai lu et j'accepte le règlement", description: 'Débloque tout le serveur', emoji_name: '✅', role_ids: [roles.member.id], channel_ids: [] }] },
-    { id: snow(), type: 0, title: 'Sur quelle plateforme ?', single_select: false, required: false, in_onboarding: true, options: opt('plateforme') },
     { id: snow(), type: 0, title: 'Quelles notifications veux-tu ?', single_select: false, required: false, in_onboarding: true, options: opt('notifs') },
   ],
 }).then(() => console.log('  accueil (choix des rôles) activé'))
@@ -197,5 +197,5 @@ for (const rule of [
 }
 
 await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles.owner.id}`);
-await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles.member.id}`);
+for (const k of ['member', 'globe']) await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles[k].id}`);
 console.log('\n✅ Serveur configuré !');
