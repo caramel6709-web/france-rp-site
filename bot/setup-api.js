@@ -58,7 +58,7 @@ const botRole = (await api('GET', `${G}/roles`)).find((x) => x.tags?.bot_id === 
 const order = [...(botRole ? [botRole.id] : []), ...created];
 await api('PATCH', `${G}/roles`, order.map((id, i) => ({ id, position: order.length - i })));
 
-const staff = [roles.owner, roles.cofond, ...ROLES.filter((r) => r.staff).map((r) => roles[r.key])];
+const staff = [roles.owner, ...ROLES.filter((r) => r.staff).map((r) => roles[r.key])];
 const role = (r, allow, deny) => ({ id: r.id, type: 0, ...(allow && { allow: bits(...allow) }), ...(deny && { deny: bits(...deny) }) });
 const everyone = { id: GUILD_ID };
 const write = ['SendMessages', 'CreatePublicThreads', 'CreatePrivateThreads', 'SendMessagesInThreads'];
@@ -68,7 +68,6 @@ const overwrites = (access) => {
   return ({
     readonly: [role(everyone, ['ViewChannel'], write), ...staff.map((r) => role(r, ['SendMessages']))],
     anim:     [role(everyone, ['ViewChannel'], write), ...[...staff, roles.anim].map((r) => role(r, ['SendMessages']))],
-    team:     [role(everyone, null, ['ViewChannel']), ...[roles.team, ...staff].map((r) => role(r, ['ViewChannel']))],
     staff:    [role(everyone, null, ['ViewChannel']), ...staff.map((r) => role(r, ['ViewChannel']))],
   })[access] ?? [];
 };
@@ -149,7 +148,7 @@ const ch = (k) => `<#${channels[k].id}>`;
 const r = (k) => `<@&${roles[k].id}>`;
 await send('rules', { title: '『📖』・Règlement', description: RULES, color: 0xe74c3c });
 await send('welcome', { title: `Bienvenue sur ${SERVER_NAME} !`, color: 0xff6b9d, description:
-  `${e('partyblob', '🎉')} Un serveur **communautaire et chill** : GTA 6, gaming, memes et bonne ambiance.\n\n` +
+  `${e('partyblob', '🎉')} Le serveur **RolePlay** de Soleria : rejoins un service, vis ton RP et suis toute l'actu du jeu.\n\n` +
   `『📄』・Lis le ${ch('rules')}\n『🎭』・Choisis tes rôles via **Salons & rôles** (en haut de la liste)\n` +
   `『💬』・Viens parler dans ${ch('general')}\n\nBon séjour ! ${e('blobcool', '😎')}` });
 const groups = []; for (const x of ROLES) { if (x.sep) groups.push({ title: x.name.match(/『 (.+) 』/)[1], list: [] }); else groups.at(-1).list.push(x); }
@@ -175,7 +174,6 @@ await api('PUT', `${G}/onboarding`, {
   prompts: [
     { id: snow(), type: 0, title: 'Règlement', single_select: true, required: true, in_onboarding: true, options: [
       { id: snow(), title: "J'ai lu et j'accepte le règlement", description: 'Débloque tout le serveur', emoji_name: '✅', role_ids: [roles.member.id], channel_ids: [] }] },
-    { id: snow(), type: 0, title: 'À quoi tu joues ?', single_select: false, required: false, in_onboarding: true, options: opt('jeux') },
     { id: snow(), type: 0, title: 'Sur quelle plateforme ?', single_select: false, required: false, in_onboarding: true, options: opt('plateforme') },
     { id: snow(), type: 0, title: 'Quelles notifications veux-tu ?', single_select: false, required: false, in_onboarding: true, options: opt('notifs') },
   ],

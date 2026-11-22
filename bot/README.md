@@ -1,4 +1,4 @@
-# 🌴 Palm Society — bot Palmy
+# ☀️ Soleria RolePlay — bot Soly
 
 Configure automatiquement un serveur Discord chill + GTA et le modère.
 

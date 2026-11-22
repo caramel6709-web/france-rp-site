@@ -1,16 +1,15 @@
 // Structure du serveur communautaire « Sunset Club » — style ╭『emoji』nom
-export const SERVER_NAME = '『🌴』Palm Society';
-export const DESCRIPTION = '🌴 Palm Society — serveur communautaire chill : GTA 6, gaming, memes et bonne ambiance. Rejoins la team !';
+export const SERVER_NAME = '☀️👑 Soleria RolePlay 👑☀️';
+export const DESCRIPTION = '☀️ Bienvenue sur Soleria RolePlay ! Rejoins un service (police, gendarmerie, SAMU, pompiers, mairie…), vis ton RP et suis toutes les actualités du serveur.';
 
 const STAFF_BASE = ['ManageMessages', 'ManageThreads', 'ModerateMembers', 'MoveMembers', 'MuteMembers'];
 const MODO = [...STAFF_BASE, 'ViewAuditLog', 'KickMembers', 'ManageNicknames'];
 const ADMIN_P = [...MODO, 'BanMembers', 'ManageChannels', 'ManageEvents', 'MentionEveryone', 'DeafenMembers'];
 const DIREC_P = [...ADMIN_P, 'ManageGuild', 'ManageRoles', 'ManageWebhooks', 'ManageGuildExpressions'];
-// sep : rôle séparateur décoratif · staff : accès aux salons staff · self : rôle choisi à l'accueil
+// sep : rôle séparateur · staff : accès aux salons staff · self : choisi à l'accueil · rp : service RP (donné après recrutement)
 export const ROLES = [
   { sep: true, name: '━━━━━━ 『 FONDATION 』 ━━━━━━' },
   { key: 'owner',  name: '👑・Fondateur',          color: 0xf1c40f, hoist: true, perms: ['Administrator'] },
-  { key: 'cofond', name: '💎・Co-Fondateur',       color: 0x00d2ff, hoist: true, perms: ['Administrator'] },
   { sep: true, name: '━━━━━━━ 『 STAFF 』 ━━━━━━━' },
   { key: 'dir',    name: '🥈・Directeur',          color: 0xc0c0c0, hoist: true, staff: true, perms: DIREC_P },
   { key: 'sadmin', name: '🛡️・Super Admin',        color: 0xee5253, hoist: true, staff: true, perms: ADMIN_P },
@@ -18,49 +17,57 @@ export const ROLES = [
   { key: 'smodo',  name: '🔰・Super Modérateur',   color: 0x2e86de, hoist: true, staff: true, perms: [...MODO, 'BanMembers'] },
   { key: 'modo',   name: '🔨・Modérateur',         color: 0x54a0ff, hoist: true, staff: true, perms: MODO },
   { key: 'mtest',  name: '🧪・Modérateur Test',    color: 0x48dbfb, hoist: true, staff: true, perms: STAFF_BASE },
+  { key: 'wl',     name: '📋・Staff Whitelist',    color: 0x1dd1a1, hoist: true, staff: true, perms: ['ManageNicknames', 'MoveMembers'] },
   { sep: true, name: '━━━━━━ 『 ÉQUIPES 』 ━━━━━━' },
   { key: 'anim',   name: '🎉・Animateur',          color: 0xff6b9d, hoist: true, perms: ['ManageEvents', 'CreateEvents', 'MoveMembers', 'PrioritySpeaker'] },
-  { key: 'recrut', name: '📝・Recruteur',          color: 0xa29bfe, perms: [] },
+  { key: 'dev',    name: '💻・Développeur',        color: 0x00cec9, hoist: true, perms: ['ManageWebhooks'] },
   { key: 'graph',  name: '🎨・Graphiste',          color: 0xfd79a8, perms: ['CreateGuildExpressions'] },
-  { key: 'dev',    name: '💻・Développeur',        color: 0x00cec9, perms: ['ManageWebhooks'] },
+  { key: 'recrut', name: '📝・Recruteur',          color: 0xa29bfe, perms: [] },
+  { sep: true, name: '━━━━━━ 『 SERVICES RP 』 ━━━━━━' },
+  { key: 'maire',  name: '🏛️・Mairie',             color: 0xf8c291, rp: true },
+  { key: 'pref',   name: '🏢・Préfecture',         color: 0xe58e26, rp: true },
+  { key: 'police', name: '🚓・Police Nationale',   color: 0x1e3799, rp: true },
+  { key: 'gend',   name: '🚔・Gendarmerie',        color: 0x0c2461, rp: true },
+  { key: 'samu',   name: '🚑・SAMU',               color: 0xeb2f06, rp: true },
+  { key: 'pomp',   name: '🚒・Pompiers',           color: 0xb71540, rp: true },
+  { key: 'justice', name: '⚖️・Justice',           color: 0x6a89cc, rp: true },
+  { key: 'bus',    name: '🚌・Transports',         color: 0xfad390, rp: true },
+  { key: 'depan',  name: '🔧・Dépanneur',          color: 0x82ccdd, rp: true },
+  { key: 'tv',     name: '🎥・Journaliste',        color: 0xb8e994, rp: true },
+  { key: 'entre',  name: '💼・Entreprise',         color: 0x78e08f, rp: true },
+  { key: 'gang',   name: '💸・Gang',               color: 0x4b4b4b, rp: true },
   { sep: true, name: '━━━━━ 『 COMMUNAUTÉ 』 ━━━━━' },
   { key: 'partner', name: '🤝・Partenaire',        color: 0x6c5ce7, hoist: true, perms: [] },
-  { key: 'team',   name: '⭐・Team',               color: 0xffeaa7, hoist: true, perms: [] },
-  { key: 'vip',    name: '💜・VIP',                color: 0x9b59b6, hoist: true, perms: ['UseExternalStickers'] },
+  { key: 'vip',    name: '💎・VIP',                color: 0x9b59b6, hoist: true, perms: ['UseExternalStickers'] },
   { key: 'ancien', name: '🏅・Ancien',             color: 0xb2bec3, perms: [] },
   { key: 'actif',  name: '🔥・Membre Actif',       color: 0xff7f50, perms: [] },
   { key: 'member', name: '✅・Membre',             color: 0x95a5a6, perms: [] },
   { sep: true, name: '━━━━━━ 『 PROFIL 』 ━━━━━━' },
-  { key: 'gta6',   name: '🏝️・GTA 6',             color: 0xff4fa3, self: 'jeux' },
-  { key: 'gtav',   name: '🚗・GTA V',              color: 0x2ecc71, self: 'jeux' },
-  { key: 'roblox', name: '🧱・Roblox',             color: 0xd63031, self: 'jeux' },
-  { key: 'fn',     name: '🪂・Fortnite',           color: 0x0984e3, self: 'jeux' },
-  { key: 'mc',     name: '⛏️・Minecraft',          color: 0x55a630, self: 'jeux' },
   { key: 'pc',     name: '🖥️・PC',                 color: 0x636e72, self: 'plateforme' },
-  { key: 'ps',     name: '🎮・PlayStation',        color: 0x0652dd, self: 'plateforme' },
-  { key: 'xbox',   name: '🟩・Xbox',               color: 0x107c10, self: 'plateforme' },
   { key: 'mobile', name: '📱・Mobile',             color: 0xb2bec3, self: 'plateforme' },
+  { key: 'tab',    name: '📲・Tablette',           color: 0xb2bec3, self: 'plateforme' },
+  { key: 'cons',   name: '🎮・Console',            color: 0x0652dd, self: 'plateforme' },
   { sep: true, name: '━━━━ 『 NOTIFICATIONS 』 ━━━━' },
   { key: 'nAnn',   name: '🔔・Notif Annonces',     color: 0x99aab5, self: 'notifs' },
   { key: 'nEvent', name: '🎊・Notif Events',       color: 0x99aab5, self: 'notifs' },
   { key: 'nGive',  name: '🎁・Notif Giveaways',    color: 0x99aab5, self: 'notifs' },
   { key: 'nSond',  name: '📊・Notif Sondages',     color: 0x99aab5, self: 'notifs' },
-  { key: 'nGta',   name: '📰・Notif GTA 6',        color: 0x99aab5, self: 'notifs' },
+  { key: 'nRecrut', name: '📢・Notif Recrutements', color: 0x99aab5, self: 'notifs' },
+  { key: 'nUpd',   name: '🛠️・Notif Updates',      color: 0x99aab5, self: 'notifs' },
 ];
 
-// Catégorie : name (null = salons hors catégorie), bars (╭ ｜ ╰ devant les salons, défaut oui), access,
-//   gate (salons visibles seulement après acceptation du règlement = rôle ✅・Membre ; public: true pour une exception)
-// Salon : type text|voice|news|forum, access :
-//   'readonly' | 'anim' | 'team' | 'staff' | ['clé', ...] (caché sauf ces rôles) | { connect: ['clé', ...] } (visible, verrouillé sauf ces rôles)
-const FONDATION = ['cofond'];
+// Catégorie : name (null = hors catégorie), bars (╭ ｜ ╰, défaut oui), access, gate (visible après acceptation du règlement)
+// Salon : type text|voice|news|forum, public (exception au gate), limit, access :
+//   'readonly' | 'anim' | 'staff' | ['clé', ...] (caché sauf ces rôles) | { connect: [...] } (visible, verrouillé sauf ces rôles)
+const FONDATION = ['owner'];
 const DIRECTION = [...FONDATION, 'dir'];
 const ADMIN = [...DIRECTION, 'sadmin', 'admin'];
-const STAFF = [...ADMIN, 'smodo', 'modo', 'mtest'];
+const STAFF = [...ADMIN, 'smodo', 'modo', 'mtest', 'wl'];
 const lock = (...keys) => ({ connect: keys.flat() });
 const SEP = { name: '-------', type: 'voice', access: lock() };
 export const CATEGORIES = [
   { name: null, bars: false, channels: [
-    { name: '#PalmSociety 🌴', type: 'voice', access: lock() },
+    { name: '#SoleriaRP 👑', type: 'voice', access: lock() },
   ]},
   { name: '📊 SERVER STATS 📊', bars: false, channels: [
     { key: 'statMembers', name: '『🌟』Membres : {members}', type: 'voice', access: lock() },
@@ -75,22 +82,24 @@ export const CATEGORIES = [
   ]},
   { name: '[•] GESTION SERVEUR [•]', bars: false, gate: true, channels: [
     { name: '『👑』FONDATION 👑 (ᶻᶻᶻ)',          type: 'voice', access: lock(FONDATION) },
-    { name: '『👑』FONDATION 💎👑',              type: 'voice', access: lock(FONDATION) },
-    { name: '『🥈』Bureau du Directeur',        type: 'voice', access: lock(DIRECTION) },
+    { name: '『👑』Bureau de Félix (F)',         type: 'voice', access: lock(FONDATION) },
+    { name: "『👑』Bureau d'Infinity (F)",       type: 'voice', access: lock(FONDATION) },
+    { name: '『🥈』Bureau du Directeur (D)',     type: 'voice', access: lock(DIRECTION) },
+    { name: '『🕵️』Bureau Sécurité',             type: 'voice', access: lock(ADMIN) },
     { name: '『👮』Bureau des Admins',           type: 'voice', access: lock(ADMIN) },
-    { name: '『🔰』Bureau des Modérateurs',      type: 'voice', access: lock(STAFF) },
-    { name: '『🚨』Bureau Urgence',              type: 'voice', access: lock(STAFF) },
+    { name: '『🚨』Bureau Urgence Sécurité',     type: 'voice', access: lock(STAFF) },
     { name: '『😴』Bureau Zone de Repos ᶻᶻᶻ',    type: 'voice', access: lock(STAFF) },
+    { name: '『💠』Bureau du Staff WL',          type: 'voice', access: lock(STAFF) },
     { name: '『💡』Bureau du Staff',             type: 'voice', access: lock(STAFF) },
     { name: '『⬆️』En Attente de Move ⬆️',       type: 'voice' },
   ]},
   { name: '[•] Informations [•]', gate: true, channels: [
-    { key: 'annonces', name: '『📯』annonces', public: true, access: 'readonly', type: 'news' },
-    { name: '『🔗』liens-utiles', public: true,        access: 'readonly' },
-    { name: '『❗』infos', public: true,               access: 'readonly' },
-    { name: '『🥇』classements', public: true,         access: 'readonly' },
-    { name: '『🆘』report-discord', public: true,      access: 'readonly' },
-    { name: '『🛠️』updates',             access: 'readonly' },
+    { key: 'annonces', name: '『📯』annonces', access: 'readonly', type: 'news', public: true },
+    { name: '『🔗』lien-du-jeu',         access: 'readonly', public: true },
+    { name: '『❗』infos',               access: 'readonly', public: true },
+    { name: '『🥇』stats-soleria',       access: 'readonly', public: true },
+    { name: '『🆘』report-discord',      access: 'readonly', public: true },
+    { name: '『🛠️』updates-du-jeu',      access: 'readonly' },
     { name: '『🎁』giveaways',           access: 'anim' },
     { name: '『🚀』boosts',              access: 'readonly' },
     { name: '『🎊』grands-événements',   access: 'anim' },
@@ -98,10 +107,11 @@ export const CATEGORIES = [
     { name: '『✨』annonce-animation',   access: 'anim' },
     { name: '『📊』sondages',            access: 'readonly' },
     { name: '『💠』réseaux',             access: 'readonly' },
-    { name: '『🤝』partenariats',        access: 'readonly' },
+    { name: '『🚨』unban-serveur-principal', access: 'readonly' },
+    { name: '『🏛️』élections-municipales-rp', access: 'readonly' },
     { name: '『🔶』recrutement-animateurs', access: 'readonly' },
     { name: '『📶』communication-pub',   access: 'readonly' },
-    { name: '『🔷』recrutement-staffs',  access: 'readonly' },
+    { name: '『🔷』recrutement-staffs-soleria', access: 'readonly' },
   ]},
   { name: '[•] Social [•]', gate: true, channels: [
     { key: 'general', name: '『💬』discussion' },
@@ -111,11 +121,9 @@ export const CATEGORIES = [
     { name: '『🌍』jeux' },
     { name: '『📸』médias' },
   ]},
-  { name: '[•] GTA 6 [•]', gate: true, channels: [
-    { name: '『🗞️』gta6-news', access: 'readonly', type: 'news' },
-    { name: '『🧵』spoilers' },
-    { name: '『🚘』gta-discussion' },
-    { name: '『👥』cherche-crew' },
+  { name: '[•] Développement [•]', gate: true, channels: [
+    { name: '『🧵』spoilers', access: 'readonly' },
+    { name: '『💡』idées-du-jeu' },
   ]},
   { name: '[•] Support [•]', channels: [
     { name: '『💾』question' },
@@ -130,36 +138,37 @@ export const CATEGORIES = [
     { name: '『❓』Aide 3', type: 'voice', access: lock(STAFF) },
     { name: "『❓』En attente d'aide", type: 'voice' },
   ]},
-  { name: '[•] Événements [•]', gate: true, channels: [
-    { name: '『💥』projets-events' },
+  { name: '[•] Mairie_RP [•]', gate: true, channels: [
+    { name: '『💥』projets-municipaux-rp', access: ['maire', ...STAFF] },
     { name: '『🏛️』En attente', type: 'voice' },
-    { name: '『🏛️』Bureau des Événements', type: 'voice', access: lock(STAFF, 'anim') },
+    { name: '『🏛️』Bureau du Maire Soleria_RP', type: 'voice', access: lock('maire', ADMIN) },
   ]},
-  { name: '[•] Recrutements [•]', gate: true, channels: [
-    { name: '『📚』candidature-staff' },
-    { name: '『🎉』candidature-animateur' },
-    { name: '『🎨』candidature-graphiste' },
-    { name: '『💻』candidature-développeur' },
-    { name: '『🤝』candidature-partenariat' },
-    { name: '『⭐』candidature-team' },
+  { name: '[•] Recrutements Services [•]', gate: true, channels: [
+    { name: '『📚』mairie-rp',          access: 'readonly' },
+    { name: '『🏢』préfecture-rp',      access: 'readonly' },
+    { name: '『🚓』police-rp',          access: 'readonly' },
+    { name: '『🚔』gendarmerie-rp',     access: 'readonly' },
+    { name: '『🚑』samu-ambulance-rp',  access: 'readonly' },
+    { name: '『🚒』pompiers-rp',        access: 'readonly' },
+    { name: '『⚖️』justice-rp',         access: 'readonly' },
+    { name: '『🚌』transports-bus-rp',  access: 'readonly' },
+    { name: '『🔧』dépanneurs-rp',      access: 'readonly' },
+    { name: '『🎥』soleria-tv-rp',      access: 'readonly' },
+    { name: '『💼』entreprises-rp',     access: 'readonly' },
+    { name: '『💸』gangs-rp',           access: 'readonly' },
   ]},
   { name: '[•] Vocaux [•]', gate: true, channels: [
     { name: '『🔊』Général 1', type: 'voice' },
     { name: '『🔊』Général 2', type: 'voice' },
-    { name: '『🏖️』GTA Session', type: 'voice' },
     SEP,
-    { name: '『🎉』Bureau Animation', type: 'voice', access: lock(STAFF, 'anim') },
-    { name: '『🎉』Radio Animateur', type: 'voice', access: lock(STAFF, 'anim') },
-    { name: '『🎉』Animation', type: 'voice' },
+    { name: '『🎉』Bureau Animation Soleria', type: 'voice', access: lock(STAFF, 'anim') },
+    { name: '『🎉』Radio Animateur RP', type: 'voice', access: lock(STAFF, 'anim') },
+    { name: '『🎉』Animation RP', type: 'voice' },
     SEP,
     { name: '『⛔』Privé 2', type: 'voice', limit: 2 },
     { name: '『⛔』Privé 2', type: 'voice', limit: 2 },
     { name: '『⛔』Privé 2', type: 'voice', limit: 2 },
     { key: 'afk', name: '『💤』AFK', type: 'voice' },
-  ]},
-  { name: '[•] Team [•]', access: 'team', channels: [
-    { name: '『⭐』team-chat' },
-    { name: '『🌠』Team', type: 'voice' },
   ]},
   { name: '[•] Staff [•]', access: 'staff', channels: [
     { name: '『☕』staff-chat' },
@@ -176,6 +185,7 @@ export const RULES = `**『🤝』・Respect** — Pas d'insultes, de harcèleme
 **『📢』・Pub** — Pas de pub (serveurs, réseaux…) sans l'accord du staff, même en MP.
 **『🔞』・Contenu** — Rien de NSFW, choquant ou illégal.
 **『🎮』・Triche** — Pas de cheat ni de vente de comptes/argent.
+**『🎭』・RolePlay** — Respecte ton personnage et les règles RP en jeu (pas de freekill, pas de metagaming, pas de powergaming).
 **『📂』・Salons** — Chaque sujet dans le bon salon.
 **『🪪』・Profil** — Pseudo et photo de profil corrects.
 **『🛡️』・Staff** — Les décisions du staff se respectent. Un souci ? Écris dans 『🚨』signalements.
