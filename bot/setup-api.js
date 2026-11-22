@@ -49,14 +49,15 @@ await api('PATCH', `${G}/roles/${GUILD_ID}`, { permissions: bits('ViewChannel', 
 // Rôles (réutilise les rôles existants du même nom, dans l'ordre)
 const roles = {};
 const created = [];
+const norm = (n) => n.replace(/\uFE0F/g, '').trim();
 const pool = (await api('GET', `${G}/roles`)).filter((x) => !x.managed && x.id !== GUILD_ID);
 const missing = [];
 const byRole = new Map();
 // priorité : rôles déjà existants, puis ✅ Membre (indispensable à l'accès), puis le reste dans l'ordre
-const prio = (r) => (pool.some((x) => x.name === r.name) ? 0 : r.key === 'member' ? 1 : 2);
+const prio = (r) => (pool.some((x) => norm(x.name) === norm(r.name)) ? 0 : r.key === 'member' ? 1 : 2);
 for (const r of [...ROLES].sort((a, b) => prio(a) - prio(b))) {
   const spec = { name: r.name, color: r.sep ? 0 : r.color, hoist: !!r.hoist, mentionable: !!r.mention, permissions: bits(...(r.perms ?? [])) };
-  const idx = pool.findIndex((x) => x.name === r.name);
+  const idx = pool.findIndex((x) => norm(x.name) === norm(r.name));
   let role;
   if (idx >= 0) { role = pool.splice(idx, 1)[0]; await api('PATCH', `${G}/roles/${role.id}`, spec); }
   else role = await api('POST', `${G}/roles`, spec, { maxWait: 30_000 });
@@ -65,7 +66,6 @@ for (const r of [...ROLES].sort((a, b) => prio(a) - prio(b))) {
   byRole.set(r, role.id);
 }
 for (const r of ROLES) if (byRole.has(r)) created.push(byRole.get(r));
-for (const extra of pool) await api('DELETE', `${G}/roles/${extra.id}`);
 console.log(`  ${created.length} rôles prêts${missing.length ? `, ${missing.length} en attente (limite Discord) : ${missing.join(' | ')}` : ''}`);
 const me = await api('GET', '/users/@me');
 const botRole = (await api('GET', `${G}/roles`)).find((x) => x.tags?.bot_id === me.id);
@@ -190,7 +190,7 @@ await api('PUT', `${G}/onboarding`, {
   prompts: [
     { id: snow(), type: 0, title: 'Règlement', single_select: true, required: true, in_onboarding: true, options: [
       { id: snow(), title: "J'ai lu et j'accepte le règlement", description: 'Débloque tout le serveur', emoji_name: '✅', role_ids: [roles.member?.id].filter(Boolean), channel_ids: [] }] },
-    { id: snow(), type: 0, title: 'Quelles notifications veux-tu ?', single_select: false, required: false, in_onboarding: true, options: opt('notifs') },
+    ...(opt('notifs').length ? [{ id: snow(), type: 0, title: 'Quelles notifications veux-tu ?', single_select: false, required: false, in_onboarding: true, options: opt('notifs') }] : []),
   ],
 }).then(() => console.log('  accueil (choix des rôles) activé'))
   .catch((err) => console.warn('  accueil ignoré :', err.message));

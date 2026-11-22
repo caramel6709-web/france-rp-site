@@ -17,9 +17,10 @@ async function api(method, path, body) {
     return data;
   }
 }
-const existing = (await api('GET', `${G}/roles`)).map((r) => r.name);
+const norm = (n) => n.replace(/\uFE0F/g, '').trim();
+const existing = (await api('GET', `${G}/roles`)).map((r) => norm(r.name));
 const need = [];
-for (const r of ROLES) { const i = existing.indexOf(r.name); if (i >= 0) existing.splice(i, 1); else need.push(r); }
+for (const r of ROLES) { const i = existing.indexOf(norm(r.name)); if (i >= 0) existing.splice(i, 1); else need.push(r); }
 need.sort((a, b) => (b.key === 'member') - (a.key === 'member'));
 console.log(`${need.length} rôles à créer`);
 for (const r of need) {
