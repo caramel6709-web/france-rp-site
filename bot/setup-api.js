@@ -1,6 +1,7 @@
 // Configure le serveur via l'API HTTP de Discord (pas besoin que le bot tourne).
 // Usage : DISCORD_TOKEN=... GUILD_ID=... node setup-api.js [--reset]
-// --reset efface tous les salons, rôles et règles AutoMod (les emojis sont conservés).
+// --reset efface les salons et règles AutoMod ; --reset-roles efface aussi les rôles (les emojis sont conservés).
+// Les rôles existants sont réutilisés par leur nom ; un rôle que Discord refuse de créer tout de suite est ignoré (relancer plus tard).
 import 'dotenv/config';
 import { PermissionFlagsBits as P } from 'discord.js';
 import { SERVER_NAME, DESCRIPTION, ROLES, CATEGORIES, RULES, BANNED_WORDS } from './config.js';
@@ -8,13 +9,17 @@ import { SERVER_NAME, DESCRIPTION, ROLES, CATEGORIES, RULES, BANNED_WORDS } from
 const { DISCORD_TOKEN, GUILD_ID } = process.env;
 const API = 'https://discord.com/api/v10';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function api(method, path, body) {
+async function api(method, path, body, { maxWait = Infinity } = {}) {
   for (;;) {
     const res = await fetch(API + path, {
       method, headers: { Authorization: `Bot ${DISCORD_TOKEN}`, ...(body && { 'Content-Type': 'application/json' }) },
       body: body ? JSON.stringify(body) : undefined,
     });
-    if (res.status === 429) { const w = ((await res.json()).retry_after ?? 1) * 1000 + 100; await sleep(w); continue; }
+    if (res.status === 429) {
+      const w = ((await res.json()).retry_after ?? 1) * 1000 + 100;
+      if (w > maxWait) return null; // limite trop longue : on abandonne cette requête
+      await sleep(w); continue;
+    }
     const data = res.status === 204 ? null : await res.json();
     if (!res.ok) throw new Error(`${method} ${path} → ${res.status} ${JSON.stringify(data)}`);
     return data;
@@ -32,7 +37,7 @@ if (guild.features.includes('COMMUNITY')) await api('PATCH', G, { features: guil
 await api('PATCH', G, { name: SERVER_NAME, afk_channel_id: null, system_channel_id: null });
 for (const c of existing) await api('DELETE', `/channels/${c.id}`);
 if (RESET) {
-  for (const r of await api('GET', `${G}/roles`)) if (!r.managed && r.id !== GUILD_ID) await api('DELETE', `${G}/roles/${r.id}`);
+  if (process.argv.includes('--reset-roles')) for (const r of await api('GET', `${G}/roles`)) if (!r.managed && r.id !== GUILD_ID) await api('DELETE', `${G}/roles/${r.id}`);
   for (const r of await api('GET', `${G}/auto-moderation/rules`)) await api('DELETE', `${G}/auto-moderation/rules/${r.id}`);
   console.log('  ancien contenu effacé');
 }
@@ -41,28 +46,38 @@ await api('PATCH', `${G}/roles/${GUILD_ID}`, { permissions: bits('ViewChannel', 
   'EmbedLinks', 'AttachFiles', 'AddReactions', 'UseExternalEmojis', 'ReadMessageHistory', 'UseApplicationCommands', 'Connect', 'Speak',
   'Stream', 'UseVAD', 'UseEmbeddedActivities', 'UseSoundboard', 'ChangeNickname', 'CreateInstantInvite', 'SendVoiceMessages', 'SendPolls') });
 
-// Rôles
+// Rôles (réutilise les rôles existants du même nom, dans l'ordre)
 const roles = {};
 const created = [];
-for (const r of ROLES) {
-  const role = await api('POST', `${G}/roles`, {
-    name: r.name, color: r.sep ? 0 : r.color, hoist: !!r.hoist, mentionable: !!r.mention,
-    permissions: bits(...(r.perms ?? [])),
-  });
+const pool = (await api('GET', `${G}/roles`)).filter((x) => !x.managed && x.id !== GUILD_ID);
+const missing = [];
+const byRole = new Map();
+// priorité : rôles déjà existants, puis ✅ Membre (indispensable à l'accès), puis le reste dans l'ordre
+const prio = (r) => (pool.some((x) => x.name === r.name) ? 0 : r.key === 'member' ? 1 : 2);
+for (const r of [...ROLES].sort((a, b) => prio(a) - prio(b))) {
+  const spec = { name: r.name, color: r.sep ? 0 : r.color, hoist: !!r.hoist, mentionable: !!r.mention, permissions: bits(...(r.perms ?? [])) };
+  const idx = pool.findIndex((x) => x.name === r.name);
+  let role;
+  if (idx >= 0) { role = pool.splice(idx, 1)[0]; await api('PATCH', `${G}/roles/${role.id}`, spec); }
+  else role = await api('POST', `${G}/roles`, spec, { maxWait: 30_000 });
+  if (!role) { missing.push(r.name); continue; }
   if (r.key) roles[r.key] = role;
-  created.push(role.id);
-  console.log(`  rôle ${r.name}`);
+  byRole.set(r, role.id);
 }
+for (const r of ROLES) if (byRole.has(r)) created.push(byRole.get(r));
+for (const extra of pool) await api('DELETE', `${G}/roles/${extra.id}`);
+console.log(`  ${created.length} rôles prêts${missing.length ? `, ${missing.length} en attente (limite Discord) : ${missing.join(' | ')}` : ''}`);
 const me = await api('GET', '/users/@me');
 const botRole = (await api('GET', `${G}/roles`)).find((x) => x.tags?.bot_id === me.id);
 const order = [...(botRole ? [botRole.id] : []), ...created];
 await api('PATCH', `${G}/roles`, order.map((id, i) => ({ id, position: order.length - i })));
 
-const staff = [roles.owner, ...ROLES.filter((r) => r.staff).map((r) => roles[r.key])];
-const role = (r, allow, deny) => ({ id: r.id, type: 0, ...(allow && { allow: bits(...allow) }), ...(deny && { deny: bits(...deny) }) });
+const staff = [...new Set([roles.owner, ...ROLES.filter((r) => r.staff).map((r) => roles[r.key])].filter(Boolean))];
+const role = (r, allow, deny) => r && ({ id: r.id, type: 0, ...(allow && { allow: bits(...allow) }), ...(deny && { deny: bits(...deny) }) });
 const everyone = { id: GUILD_ID };
 const write = ['SendMessages', 'CreatePublicThreads', 'CreatePrivateThreads', 'SendMessagesInThreads'];
-const overwrites = (access) => {
+const overwrites = (access) => overwritesRaw(access).filter(Boolean);
+const overwritesRaw = (access) => {
   if (Array.isArray(access)) return [role(everyone, null, ['ViewChannel']), ...access.map((k) => role(roles[k], ['ViewChannel', 'Connect']))];
   if (access?.connect) return [role(everyone, ['ViewChannel'], ['Connect']), ...access.connect.map((k) => role(roles[k], ['Connect', 'Speak']))];
   return ({
@@ -87,7 +102,7 @@ const gate = (list) => {
   if (!ev) out.push(ev = { id: GUILD_ID, type: 0 });
   ev.allow = (BigInt(ev.allow ?? 0) & ~P.ViewChannel).toString();
   ev.deny = (BigInt(ev.deny ?? 0) | P.ViewChannel).toString();
-  for (const r of [roles.member, ...staff]) {
+  for (const r of [roles.member, ...staff].filter(Boolean)) {
     const o = out.find((x) => x.id === r.id);
     const add = r === roles.member && out.some((x) => x.id === GUILD_ID && BigInt(x.deny ?? 0) & P.Connect) ? P.ViewChannel : VIEW;
     if (o) o.allow = (BigInt(o.allow ?? 0) | add).toString(); else out.push({ id: r.id, type: 0, allow: add.toString() });
@@ -153,7 +168,7 @@ await send('welcome', { title: `Bienvenue sur ${SERVER_NAME} !`, color: 0xff6b9d
   `『💬』・Viens parler dans ${ch('general')}\n\nBon séjour ! ${e('blobcool', '😎')}` });
 const groups = []; for (const x of ROLES) { if (x.sep) groups.push({ title: x.label, list: [] }); else groups.at(-1).list.push(x); }
 await send('roles', { title: '『🔔』・Rôles & notifications', color: 0x5865f2, description: groups.map((g) =>
-  `**[•] ${g.title} [•]**\n${g.list.map((x) => r(x.key)).join('\n')}`).join('\n\n') +
+  `**[•] ${g.title} [•]**\n${g.list.filter((x) => roles[x.key]).map((x) => r(x.key)).join('\n')}`).join('\n\n') +
   `\n\n➡️ Les rôles **Notifications** se choisissent dans **Salons & rôles** (en haut de la liste des salons).` });
 await send('annonces', { title: '『🎉』・Ouverture !', color: 0x2ecc71,
   description: `${SERVER_NAME} est ouvert ${e('PepoDance', '🥳')} Invite tes potes !` });
@@ -161,7 +176,7 @@ await send('annonces', { title: '『🎉』・Ouverture !', color: 0x2ecc71,
 // Accueil Discord (choix des rôles à l'arrivée)
 let seq = 0n;
 const snow = () => String(((BigInt(Date.now()) - 1420070400000n) << 22n) + seq++);
-const opt = (group) => ROLES.filter((x) => x.self === group).map((x) => ({
+const opt = (group) => ROLES.filter((x) => x.self === group && roles[x.key]).map((x) => ({
   id: snow(), title: x.name.replace(/[^\p{L}\p{N} '-]/gu, '').replace(/\s+/g, ' ').trim(),
   emoji_name: '📢', role_ids: [roles[x.key].id], channel_ids: [],
 }));
@@ -174,7 +189,7 @@ await api('PUT', `${G}/onboarding`, {
     ...['informations', 'invitations', 'liens-utiles', 'infos', 'question', 'demande-unban', 'bug-reports', 'reports-joueurs', 'reports-staff'].map(byPart)].filter(Boolean),
   prompts: [
     { id: snow(), type: 0, title: 'Règlement', single_select: true, required: true, in_onboarding: true, options: [
-      { id: snow(), title: "J'ai lu et j'accepte le règlement", description: 'Débloque tout le serveur', emoji_name: '✅', role_ids: [roles.member.id], channel_ids: [] }] },
+      { id: snow(), title: "J'ai lu et j'accepte le règlement", description: 'Débloque tout le serveur', emoji_name: '✅', role_ids: [roles.member?.id].filter(Boolean), channel_ids: [] }] },
     { id: snow(), type: 0, title: 'Quelles notifications veux-tu ?', single_select: false, required: false, in_onboarding: true, options: opt('notifs') },
   ],
 }).then(() => console.log('  accueil (choix des rôles) activé'))
@@ -196,6 +211,6 @@ for (const rule of [
     .catch((err) => console.warn(`  AutoMod « ${rule.name} » ignoré : ${err.message}`));
 }
 
-await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles.owner.id}`);
-for (const k of ['member', 'globe']) await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles[k].id}`);
+if (roles.owner) await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles.owner.id}`);
+for (const k of ['member', 'globe'].filter((k) => roles[k])) await api('PUT', `${G}/members/${guild.owner_id}/roles/${roles[k].id}`);
 console.log('\n✅ Serveur configuré !');
