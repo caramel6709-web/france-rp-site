@@ -1,6 +1,6 @@
 // Structure du serveur communautaire « Sunset Club » — style ╭『emoji』nom
 export const SERVER_NAME = '☀️👑 Soleria RolePlay 👑☀️';
-export const DESCRIPTION = '☀️ Bienvenue sur Soleria RolePlay ! Rejoins un service (police, gendarmerie, SAMU, pompiers, mairie…), vis ton RP et suis toutes les actualités du serveur.';
+export const DESCRIPTION = '☀️ Bienvenue sur Soleria RolePlay ! RP français sur Roblox ! Rejoins un service (police, gendarmerie, SAMU, pompiers, mairie…) et vis ton RP.';
 
 const STAFF_BASE = ['ManageMessages', 'ManageThreads', 'ModerateMembers', 'MoveMembers', 'MuteMembers'];
 const MODO = [...STAFF_BASE, 'ViewAuditLog', 'KickMembers', 'ManageNicknames'];
@@ -114,13 +114,11 @@ export const CATEGORIES = [
   { name: '[•] Informations [•]', gate: true, channels: [
     { key: 'annonces', name: '『📯』annonces', access: 'readonly', type: 'news', public: true },
     { name: '『🔗』lien-du-jeu',         access: 'readonly', public: true },
-    { name: '『❗』infos',               access: 'readonly', public: true },
-    { name: '『🥇』stats-soleria',       access: 'readonly', public: true },
-    { name: '『🆘』report-discord',      access: 'readonly', public: true },
+    { name: '『🕹️』sessions-rp',         access: 'anim', topic: 'Annonces des sessions RP sur Roblox (heure, serveur, thème).' },
+    { name: '『🥇』statistiques',        access: 'readonly', public: true },
     { name: '『🛠️』updates-du-jeu',      access: 'readonly' },
     { name: '『🎁』giveaways',           access: 'anim' },
     { name: '『🚀』boosts',              access: 'readonly' },
-    { name: '『🎊』grands-événements',   access: 'anim' },
     { name: '『🎎』événements',          access: 'anim' },
     { name: '『✨』annonce-animation',   access: 'anim' },
     { name: '『📊』sondages',            access: 'readonly' },
@@ -137,6 +135,8 @@ export const CATEGORIES = [
     { name: '『🤖』commandes' },
     { name: '『✨』forum', type: 'forum', topic: 'Discussions, guides et débats.' },
     { name: '『🌍』jeux' },
+    { name: '『🎮』pseudo-roblox', topic: 'Mets ton pseudo Roblox ici pour te retrouver en jeu.' },
+    { name: '『📷』captures-rp', topic: 'Tes meilleures captures et vidéos de RP Roblox.' },
     { name: '『📸』médias' },
   ]},
   { name: '[•] Développement [•]', gate: true, channels: [
