@@ -1,0 +1,180 @@
+import PackageJSON from "./package.json" with { type: "json" };
+
+// versionCode: seconds since 2020-01-01 UTC — unique, strictly increasing, well under the 2.1e9 cap
+const androidVersionCode = Math.floor(Date.now() / 1000) - 1577836800;
+
+export default {
+  expo: {
+    name: "Papillon",
+    slug: "papillon",
+    version: PackageJSON.version,
+    orientation: "default",
+    icon: "./assets/images/icon.png",
+    scheme: ["papillon", "izly", "skoapp-prod"],
+    platforms: ["ios", "android"],
+    userInterfaceStyle: "automatic",
+    ios: {
+      appleTeamId: "7RXNP6V83P",
+      appStoreUrl:
+        "https://apps.apple.com/us/app/papillon-lappli-scolaire/id6477761165",
+      bundleIdentifier: "xyz.getpapillon.ios",
+      associatedDomains: ["applinks:getpapillon.xyz"],
+      icon: "./assets/app.icon",
+      minimumOSVersion: "17.6",
+      deploymentTarget: "17.6",
+      infoPlist: {
+        AppGroupIdentifier: "group.xyz.getpapillon",
+        CFBundleURLTypes: [
+          {
+            CFBundleURLSchemes: ["papillon", "izly", "skoapp-prod"],
+          },
+        ],
+        CFBundleLocalizations: [
+          "fr",
+          "en",
+          "br",
+          "pt",
+          "de",
+          "es",
+          "tr",
+          "ja",
+          "ru",
+          "ko",
+          "af",
+          "ar",
+          "el",
+          "hi",
+          "nl",
+          "pl",
+          "ro",
+          "sq",
+          "uk",
+          "vi",
+          "bg",
+          "bn",
+          "cs",
+          "da",
+          "fi",
+          "he",
+          "hu",
+          "id",
+          "no",
+          "sk",
+          "sv",
+          "sw",
+          "th",
+          "it",
+          "fa",
+          "ur",
+          "ms",
+          "hr",
+          "et",
+        ],
+        CADisableMinimumFrameDurationOnPhone: true,
+        LSApplicationQueriesSchemes: ["maps"],
+      },
+      entitlements: {
+        "com.apple.security.application-groups": [
+          "group.xyz.getpapillon",
+          "group.xyz.getpapillon.ios",
+        ],
+      },
+      supportsTablet: true,
+      config: {
+        usesNonExemptEncryption: false,
+      },
+    },
+    android: {
+      versionCode: androidVersionCode,
+      package: "xyz.getpapillon.app",
+      blockedPermissions: [
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+      ],
+      adaptiveIcon: {
+        foregroundImage: "./assets/images/adaptive-icon.png",
+        backgroundColor: "#ffffff",
+        monochromeImage: "./assets/images/monochrome-icon.png",
+      },
+      supportsTablet: true,
+      predictiveBackGestureEnabled: false,
+    },
+    web: {
+      bundler: "metro",
+      output: "static",
+      favicon: "./assets/images/favicon.png",
+    },
+    plugins: [
+      "expo-router",
+      "expo-status-bar",
+      "expo-font",
+      "expo-video",
+      [
+        "expo-audio",
+        {
+          enableBackgroundPlayback: false,
+        },
+      ],
+      "expo-localization",
+      "expo-asset",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-splash-screen",
+        {
+          backgroundColor: "#29947A",
+          image: "./assets/images/logotype.png",
+          imageWidth: 240,
+        },
+      ],
+      [
+        "expo-image-picker",
+        {
+          photosPermission:
+            "Papillon utilise ta galerie pour te permettre de personnaliser ta photo de profil",
+        },
+      ],
+      "expo-web-browser",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          locationWhenInUsePermission:
+            "Papillon utilise ton emplacement pour trouver les établissements autour de toi.",
+          cameraPermission:
+            "Papillon utilise ta caméra pour scanner des QR-codes pour te connecter, pour capturer des documents, ou pour des fonctionnalités amusantes telles que les réactions.",
+        },
+      ],
+      [
+        "react-native-edge-to-edge",
+        {
+          android: {
+            parentTheme: "Material3",
+            enforceNavigationBarContrast: false,
+          },
+        },
+      ],
+      [
+        "expo-build-properties",
+        {
+          android: {
+            enable16KbPageSizes: true,
+          },
+          ios: {
+            extraPods: [
+              { name: "SDWebImage", modular_headers: true },
+              { name: "SDWebImageSVGCoder", modular_headers: true },
+            ],
+            buildReactNativeFromSource: false,
+            ccacheEnabled: true,
+          },
+        },
+      ],
+      "@getpapillon/papillonkit",
+      "./plugins/with-ios-native-files",
+      "./plugins/with-android-gradle-properties-newline",
+    ],
+    experiments: {
+      typedRoutes: true,
+    },
+  },
+};
