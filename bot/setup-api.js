@@ -55,6 +55,12 @@ const missing = [];
 const byRole = new Map();
 // priorité : rôles déjà existants, puis ✅ Membre (indispensable à l'accès), puis le reste dans l'ordre
 const prio = (r) => (pool.some((x) => norm(x.name) === norm(r.name)) ? 0 : r.key === 'member' ? 1 : 2);
+const KEEP = process.argv.includes('--keep-roles');
+if (KEEP) {
+  // Garde les rôles tels qu'ils sont (noms, couleurs, ordre) : on les retrouve seulement par leur nom
+  for (const r of ROLES) { const x = pool.find((y) => norm(y.name) === norm(r.name)); if (x && r.key) roles[r.key] = x; else if (!x && !r.sep) missing.push(r.name); }
+  console.log(`  rôles conservés${missing.length ? ` (introuvables : ${missing.join(' | ')})` : ''}`);
+} else {
 for (const r of [...ROLES].sort((a, b) => prio(a) - prio(b))) {
   const spec = { name: r.name, color: r.sep ? 0 : r.color, hoist: !!r.hoist, mentionable: !!r.mention, permissions: bits(...(r.perms ?? [])) };
   const idx = pool.findIndex((x) => norm(x.name) === norm(r.name));
@@ -71,6 +77,7 @@ const me = await api('GET', '/users/@me');
 const botRole = (await api('GET', `${G}/roles`)).find((x) => x.tags?.bot_id === me.id);
 const order = [...(botRole ? [botRole.id] : []), ...created];
 await api('PATCH', `${G}/roles`, order.map((id, i) => ({ id, position: order.length - i })));
+}
 
 const staff = [...new Set([roles.owner, ...ROLES.filter((r) => r.staff).map((r) => roles[r.key])].filter(Boolean))];
 const role = (r, allow, deny) => r && ({ id: r.id, type: 0, ...(allow && { allow: bits(...allow) }), ...(deny && { deny: bits(...deny) }) });
@@ -94,18 +101,20 @@ const merge = (list) => Object.values(list.reduce((acc, o) => {
   acc[o.id] = cur; return acc;
 }, {})).map((o) => ({ ...o, allow: (o.allow & ~o.deny).toString(), deny: o.deny.toString() }));
 
-// Vérification : salon visible seulement par ✅・Membre et le staff
-const VIEW = P.ViewChannel | P.Connect;
+// Vérification : tout le monde VOIT le salon, mais seuls ✅・Membre et le staff peuvent écrire, réagir et parler
+const ACT = ['SendMessages', 'SendMessagesInThreads', 'CreatePublicThreads', 'CreatePrivateThreads', 'AddReactions',
+  'AttachFiles', 'EmbedLinks', 'Connect', 'Speak', 'Stream', 'RequestToSpeak'].reduce((a, n) => a | P[n], 0n);
 const gate = (list) => {
   const out = list.map((o) => ({ ...o }));
   let ev = out.find((o) => o.id === GUILD_ID);
   if (!ev) out.push(ev = { id: GUILD_ID, type: 0 });
-  ev.allow = (BigInt(ev.allow ?? 0) & ~P.ViewChannel).toString();
-  ev.deny = (BigInt(ev.deny ?? 0) | P.ViewChannel).toString();
+  if (BigInt(ev.deny ?? 0) & P.ViewChannel) return out; // salon privé : on n'y touche pas
+  const add = ACT & ~BigInt(ev.deny ?? 0); // ce que @everyone pouvait faire ici, réservé désormais aux membres
+  ev.allow = (BigInt(ev.allow ?? 0) & ~ACT).toString();
+  ev.deny = (BigInt(ev.deny ?? 0) | ACT).toString();
   for (const r of [roles.member, ...staff].filter(Boolean)) {
     const o = out.find((x) => x.id === r.id);
-    const add = r === roles.member && out.some((x) => x.id === GUILD_ID && BigInt(x.deny ?? 0) & P.Connect) ? P.ViewChannel : VIEW;
-    if (o) o.allow = (BigInt(o.allow ?? 0) | add).toString(); else out.push({ id: r.id, type: 0, allow: add.toString() });
+    if (o) o.allow = ((BigInt(o.allow ?? 0) | add) & ~BigInt(o.deny ?? 0)).toString(); else out.push({ id: r.id, type: 0, allow: add.toString() });
   }
   return out;
 };
@@ -170,6 +179,10 @@ const groups = []; for (const x of ROLES) { if (x.sep) groups.push({ title: x.la
 await send('roles', { title: '『🔔』・Rôles & notifications', color: 0x5865f2, description: groups.map((g) =>
   `**[•] ${g.title} [•]**\n${g.list.filter((x) => roles[x.key]).map((x) => r(x.key)).join('\n')}`).join('\n\n') +
   `\n\n➡️ Les rôles **Notifications** se choisissent dans **Salons & rôles** (en haut de la liste des salons).` });
+await send('verif', { title: '✅ Vérification', color: 0x6ab04c, description:
+  `Tu peux déjà **voir** presque tout le serveur 👀\nPour **écrire, parler en vocal et réagir**, accepte le règlement :\n\n` +
+  `**1.** Lis ${ch('rules')}\n**2.** Appuie sur le nom du serveur en haut\n**3.** Va dans **« Salons et rôles »**\n` +
+  `**4.** Coche **« J'ai lu et j'accepte le règlement »**\n\n➡️ Tu reçois **✅ • Membre** et tout se débloque !` });
 await send('annonces', { title: '『🎉』・Ouverture !', color: 0x2ecc71,
   description: `${SERVER_NAME} est ouvert ${e('PepoDance', '🥳')} Invite tes potes !` });
 
@@ -185,8 +198,8 @@ const allChannels = await api('GET', `${G}/channels`);
 const byPart = (p) => allChannels.find((c) => c.name.includes(p))?.id;
 await api('PUT', `${G}/onboarding`, {
   enabled: true, mode: 0,
-  default_channel_ids: [...textIds(['welcome', 'rules', 'roles', 'annonces']),
-    ...['informations', 'invitations', 'liens-utiles', 'infos', 'question', 'demande-unban', 'bug-reports', 'reports-joueurs', 'reports-staff'].map(byPart)].filter(Boolean),
+  default_channel_ids: [...textIds(['welcome', 'rules', 'verif', 'roles', 'annonces']),
+    ...['règlement-rp', 'informations', 'invitations', 'lien-du-jeu', 'questions', 'demande-unban', 'bug-reports', 'reports-joueurs', 'reports-staffs', 'demande-rôles'].map(byPart)].filter(Boolean),
   prompts: [
     { id: snow(), type: 0, title: 'Règlement', single_select: true, required: true, in_onboarding: true, options: [
       { id: snow(), title: "J'ai lu et j'accepte le règlement", description: 'Débloque tout le serveur', emoji_name: '✅', role_ids: [roles.member?.id].filter(Boolean), channel_ids: [] }] },
